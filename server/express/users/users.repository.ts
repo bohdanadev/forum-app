@@ -22,7 +22,7 @@ class UserRepository {
     return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
 
-  async findById(id: number): Promise<User | null> {
+  async findById(id: string): Promise<User | null> {
     const users = this.repository.findOne({ where: { id } });
     return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
@@ -48,7 +48,7 @@ class UserRepository {
     }
   }
 
-  async deleteByIdNative(id: number): Promise<void> {
+  async deleteByIdNative(id: string): Promise<void> {
     const queryRunner = myDataSource.createQueryRunner();
     await queryRunner.connect();
 

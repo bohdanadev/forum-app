@@ -7,7 +7,13 @@ import { AppConfig } from 'config/config.type';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app');
   const port = appConfig.nestPort;

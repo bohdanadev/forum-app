@@ -1,7 +1,9 @@
-export interface IUser {
+export class UserResDto {
   id: string;
+
   username: string;
+
   email: string;
-  password?: string;
+
   createdAt: Date;
 }

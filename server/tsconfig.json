@@ -23,6 +23,13 @@
       "config/*": ["config/*"]
     }
   },
-  "include": ["src/**/*", "express/**/*", "models/**/*", "ormconfig.ts"],
+  "include": [
+    "src/**/*",
+    "express/**/*",
+    "models/**/*",
+    "ormconfig.ts",
+    "validation/**/*",
+    "utils/**/*"
+  ],
   "exclude": ["node_modules", "dist"]
 }

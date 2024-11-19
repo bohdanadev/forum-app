@@ -1,26 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ConfigService } from '@nestjs/config/dist/config.service';
+import { JwtService } from '@nestjs/jwt';
+import { Config, JwtConfig } from '../../config/config.type';
+import { SignInReqDto } from '../../models/dto/signIn.req.dto';
+import { UsersService } from '../users/users.service';
+import { UserResDto } from '../../models/dto/user.res.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  private readonly jwtConfig: JwtConfig;
+  constructor(
+    private readonly configService: ConfigService<Config>,
+    private readonly userService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {
+    this.jwtConfig = this.configService.get<JwtConfig>('jwt');
+  }
+  public async validateUser(dto: SignInReqDto): Promise<UserResDto> {
+    const user = await this.userService.findOne(dto);
+    if (user) {
+      return user;
+    }
+
+    return null;
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async login(user: any) {
+    const payload = { username: user.username, sub: user.id };
+    return {
+      access_token: this.jwtService.sign(payload, {
+        secret: this.jwtConfig.accessSecret,
+        expiresIn: this.jwtConfig.accessExpiresIn,
+      }),
+      user,
+    };
   }
 }

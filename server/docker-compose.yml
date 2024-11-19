@@ -5,7 +5,7 @@ services:
     image: postgres
     container_name: postgres_container
     ports:
-      - '${POSTGRES_PORT}:5432'
+      - '5432:5432'
     env_file: ./environments/dev.env
     environment:
       POSTGRES_USER: '${POSTGRES_USER:-pguser}'

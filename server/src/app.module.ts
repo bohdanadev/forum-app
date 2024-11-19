@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { DataSource } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -10,6 +9,10 @@ import configuration from '../config/configuration';
 import { PostgresModule } from './postgres/postgres.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Config, MongoConfig } from 'config/config.type';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { myDataSource } from '../ormconfig';
+import { AuthService } from 'auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -24,13 +27,15 @@ import { Config, MongoConfig } from 'config/config.type';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forRoot(myDataSource.options),
     UsersModule,
     AuthModule,
     PostsModule,
     PostgresModule,
+    JwtModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AuthService],
 })
 export class AppModule {
   // constructor(private dataSource: DataSource) {}
