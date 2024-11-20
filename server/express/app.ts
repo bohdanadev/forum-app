@@ -1,11 +1,15 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
+import helmet from 'helmet';
 
 import { ConfigStaticService } from '../config/config-static';
 import { myDataSource } from '../ormconfig';
 import { userRouter } from './users/users.route';
+import { authRouter } from './auth/auth.route';
+import { ApiError } from './common/api-error';
+import passport from './middlewares/passport';
 
-const config = ConfigStaticService.get();
+export const config = ConfigStaticService.get();
 
 const app = express();
 
@@ -13,12 +17,28 @@ const port = config.app.expressPort;
 const host = config.app.host;
 const mongoUrl = config.mongo.mongoUrl;
 
+app.use(helmet());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use("/auth", authRouter);
+app.use(passport.initialize());
+
+app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 // app.use("/posts", postRouter);
+
+app.use(
+  '*',
+  (
+    err: ApiError,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    res.status(err.status || 500).json(err.message);
+  },
+);
 
 app.listen(port, host, async () => {
   await myDataSource

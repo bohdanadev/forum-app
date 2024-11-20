@@ -19,16 +19,6 @@ class UserController {
       next(e);
     }
   }
-
-  public async createUser(req: Request, res: Response, next: NextFunction) {
-    try {
-      const dto = req.body;
-      const result = await userService.create(dto);
-      res.status(201).json(result);
-    } catch (e) {
-      next(e);
-    }
-  }
 }
 
 export const userController = new UserController();

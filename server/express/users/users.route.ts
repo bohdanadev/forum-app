@@ -7,6 +7,4 @@ router.get('/v1.1', userController.getList);
 
 router.get('/v1.2', userController.getListQuery);
 
-router.post('/', userController.createUser);
-
 export const userRouter = router;

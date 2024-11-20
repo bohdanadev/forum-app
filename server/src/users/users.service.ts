@@ -17,6 +17,7 @@ import { UserResDto } from '../../models/dto/user.res.dto';
 import { IUser } from '../../models/interfaces/user.interface';
 import { UserDocument } from '../../models/schemas/user.schema';
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
+import { comparePassword } from '../../utils/helpers';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -98,7 +99,10 @@ export class UsersService implements OnModuleInit {
     const foundUser = await this.userRepository.findOne({
       where: [{ username: dto.identifier }, { email: dto.identifier }],
     });
-    if (foundUser && (await foundUser.comparePassword(dto.password))) {
+    if (
+      foundUser &&
+      (await comparePassword(dto.password, foundUser.password))
+    ) {
       return plainToInstance(User, foundUser, {
         excludeExtraneousValues: true,
       });

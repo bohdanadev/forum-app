@@ -30,8 +30,4 @@ export class User {
   @CreateDateColumn()
   @Expose()
   createdAt: Date;
-
-  async comparePassword(plainPassword: string): Promise<boolean> {
-    return await bcrypt.compare(plainPassword, this.password);
-  }
 }

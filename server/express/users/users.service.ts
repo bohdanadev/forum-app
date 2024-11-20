@@ -2,10 +2,6 @@ import { UserModel } from '../../models/schemas/user.schema';
 import { userRepository } from './users.repository';
 
 class UserService {
-  public async create(body) {
-    return await UserModel.create(body);
-  }
-
   public async getListModel() {
     await userRepository.findAll();
     return await UserModel.find();
