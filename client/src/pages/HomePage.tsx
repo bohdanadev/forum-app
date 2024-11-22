@@ -1,4 +1,3 @@
-import { Sidebar, SidebarItem } from '../components/Sidebar/Sidebar';
 import {
   MainContent,
   PostCard,
@@ -6,30 +5,25 @@ import {
   PostTitle,
   Tag,
 } from '../components/Content/Content';
+import { StyledLink } from '../components/Sidebar/Sidebar';
 
 const HomePage = () => {
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
-      <Sidebar>
-        <SidebarItem>Profile</SidebarItem>
-        <SidebarItem>My posts</SidebarItem>
-        <SidebarItem>Settings</SidebarItem>
-        <SidebarItem>Logout</SidebarItem>
-      </Sidebar>
-
       <MainContent>
-        <PostCard>
-          <PostTitle>Lorem ipsum dolor sit amet...</PostTitle>
-          <PostInfo>
-            <div>Bart replied 15 min ago • 5 replies</div>
-            <div>10.5k views • 5.5k likes • 2.5k saves</div>
-          </PostInfo>
-          <div>
-            <Tag>TS</Tag>
-            <Tag>CSS</Tag>
-          </div>
-        </PostCard>
-
+        <StyledLink to={'/posts/1'}>
+          <PostCard>
+            <PostTitle>Lorem ipsum dolor sit amet...</PostTitle>
+            <PostInfo>
+              <div>Bart replied 15 min ago • 5 replies</div>
+              <div>10.5k views • 5.5k likes • 2.5k saves</div>
+            </PostInfo>
+            <div>
+              <Tag>TS</Tag>
+              <Tag>CSS</Tag>
+            </div>
+          </PostCard>
+        </StyledLink>
         <PostCard>
           <PostTitle>Lorem ipsum dolor sit amet...</PostTitle>
           <PostInfo>

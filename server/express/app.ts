@@ -1,6 +1,7 @@
 import * as express from 'express';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
+import * as cors from 'cors';
 
 import { ConfigStaticService } from '../config/config-static';
 import { myDataSource } from '../ormconfig';
@@ -18,6 +19,14 @@ const host = config.app.host;
 const mongoUrl = config.mongo.mongoUrl;
 
 app.use(helmet());
+app.use(
+  cors({
+    origin: 'http://localhost:5173',
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Content-Type, Authorization',
+  }),
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -28,17 +37,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 // app.use("/posts", postRouter);
 
-app.use(
-  '*',
-  (
-    err: ApiError,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    res.status(err.status || 500).json(err.message);
-  },
-);
+app.use('*', (err: ApiError, req: express.Request, res: express.Response) => {
+  res.status(err.status || 500).json(err.message);
+});
 
 app.listen(port, host, async () => {
   await myDataSource

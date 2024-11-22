@@ -65,9 +65,9 @@ export class UsersService implements OnModuleInit {
     });
 
     const newUser = await createdUser.save();
-    console.log(newUser);
+    console.log(newUser.toJSON());
 
-    const user = await this.userRepository.findOneByOrFail({
+    const user = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
     if (user) {

@@ -1,15 +1,11 @@
 import { FC } from 'react';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import styled from 'styled-components';
-
-interface FormData {
-  [key: string]: string;
-}
 
 interface ReusableFormProps {
   title: string;
-  fields: { name: string; label: string; type: string }[];
-  onSubmit: SubmitHandler<FormData>;
+  fields: any;
+  onSubmit: SubmitHandler<{ [key: string]: unknown }[]>;
 }
 
 const FormContainer = styled.form`
@@ -57,12 +53,17 @@ const SubmitButton = styled.button`
   }
 `;
 
+const ErrorMessage = styled.span`
+  color: red;
+  font-size: 0.8rem;
+`;
+
 const ReusableForm: FC<ReusableFormProps> = ({ title, fields, onSubmit }) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<{ [key: string]: unknown }[]>();
 
   return (
     <FormContainer onSubmit={handleSubmit(onSubmit)}>
@@ -78,7 +79,7 @@ const ReusableForm: FC<ReusableFormProps> = ({ title, fields, onSubmit }) => {
             })}
           />
           {errors[field.name] && (
-            <span style={{ color: 'red' }}>{errors[field.name]?.message}</span>
+            <ErrorMessage>{errors[field.name]?.message as string}</ErrorMessage>
           )}
         </InputField>
       ))}

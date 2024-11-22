@@ -2,14 +2,15 @@ import { FC } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import ReusableForm from '../components/ReusableForm/ReusableForm';
+import { authService } from '../services/auth.service';
 
 const SignUp: FC = () => {
   const navigate = useNavigate();
 
-  const onSubmit = (data: { [key: string]: string }) => {
-    // Handle sign-up logic here
-    console.log('Sign-Up Data:', data);
-    navigate('/signin'); // Redirect after successful sign-up
+  const onSubmit = async (data: any) => {
+    await authService.signUp(data);
+
+    navigate('/signin');
   };
 
   return (

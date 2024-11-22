@@ -2,14 +2,15 @@ import { FC } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import ReusableForm from '../components/ReusableForm/ReusableForm';
+import { authService } from '../services/auth.service';
 
 const SignIn: FC = () => {
   const navigate = useNavigate();
 
-  const onSubmit = (data: { [key: string]: string }) => {
-    // Handle sign-in logic here
-    console.log('Sign-In Data:', data);
-    navigate('/posts'); // Redirect after successful sign-in
+  const onSubmit = async (data: any) => {
+    await authService.signIn(data);
+
+    navigate('/posts');
   };
 
   return (
@@ -17,7 +18,7 @@ const SignIn: FC = () => {
       <ReusableForm
         title='Sign In'
         fields={[
-          { name: 'email', label: 'Email', type: 'email' },
+          { name: 'identifier', label: 'Email or Username', type: 'text' },
           { name: 'password', label: 'Password', type: 'password' },
         ]}
         onSubmit={onSubmit}

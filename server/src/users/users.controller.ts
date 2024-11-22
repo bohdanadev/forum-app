@@ -46,10 +46,4 @@ export class UsersController {
   async getUserByIdQuery(@Param('userId') userId: string): Promise<IUser> {
     return this.usersService.findOneByIdQuery(userId);
   }
-
-  @Post('signup')
-  @Public()
-  async create(@Body() createUserDto: SignUpReqDto): Promise<UserResDto> {
-    return this.usersService.create(createUserDto);
-  }
 }

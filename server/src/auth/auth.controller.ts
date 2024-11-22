@@ -20,16 +20,28 @@ import { Public } from './public.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { IUser } from '../../models/interfaces/user.interface';
+import { UsersService } from 'users/users.service';
+import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
+import { UserResDto } from '../../models/dto/user.res.dto';
 
 @Controller('api/auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+  ) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post('login')
+  @Post('signin')
   @Public()
   async login(@Request() req: any) {
     return this.authService.login(req.user);
+  }
+
+  @Post('signup')
+  @Public()
+  async create(@Body() createUserDto: SignUpReqDto): Promise<UserResDto> {
+    return this.userService.create(createUserDto);
   }
 
   @UseGuards(LocalAuthGuard, JwtAuthGuard)
