@@ -5,6 +5,7 @@ export default (): Config => ({
     nestPort: Number(process.env.APP_PORT_NEST) || 3000,
     expressPort: Number(process.env.APP_PORT_EXPRESS) || 3001,
     host: process.env.APP_HOST || 'localhost',
+    appUrl: process.env.APP_URL || 'http://localhost:5173',
   },
   mongo: {
     mongoUrl: process.env.MONGO_URL,

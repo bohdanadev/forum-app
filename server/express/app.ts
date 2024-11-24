@@ -16,12 +16,13 @@ const app = express();
 
 const port = config.app.expressPort;
 const host = config.app.host;
+const clientUrl = config.app.appUrl;
 const mongoUrl = config.mongo.mongoUrl;
 
 app.use(helmet());
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: clientUrl,
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',

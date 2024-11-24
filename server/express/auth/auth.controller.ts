@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
 import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
 import { authService } from './auth.service';
@@ -22,12 +22,8 @@ class AuthController {
     return res.status(HttpStatus.OK).json(result);
   }
 
-  public async logout(req: Request, res: Response, next: NextFunction) {
-    try {
-      res.sendStatus(HttpStatus.NO_CONTENT);
-    } catch (e) {
-      next(e);
-    }
+  public async logout(req: Request, res: Response): Promise<Response<void>> {
+    return res.status(HttpStatus.NO_CONTENT);
   }
 }
 

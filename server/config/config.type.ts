@@ -8,6 +8,7 @@ export type AppConfig = {
   nestPort: number;
   expressPort: number;
   host: string;
+  appUrl: string;
 };
 export type MongoConfig = {
   mongoUrl: string;

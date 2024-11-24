@@ -21,6 +21,10 @@ router.post(
   tryCatch(authController.signIn),
 );
 
-router.get('/logout', authMiddleware.authCheck, authController.logout);
+router.get(
+  '/logout',
+  authMiddleware.authCheck,
+  tryCatch(authController.logout),
+);
 
 export const authRouter = router;
