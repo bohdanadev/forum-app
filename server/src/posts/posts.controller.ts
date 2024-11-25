@@ -6,39 +6,128 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
-import { PostsService } from './posts.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
-import { Public } from 'auth/public.decorator';
 
-@Controller('posts')
+import { PostsService } from './posts.service';
+import { CreatePostDto } from '../../models/dto/post/create-post.dto';
+import { UpdatePostDto } from '../../models/dto/post/update-post.dto';
+import { Public } from '../auth/public.decorator';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { IUser } from '../../models/interfaces/user.interface';
+import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
+import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
+import { UserMapper } from '../../utils/user-mapper';
+import { IPost } from '../../models/interfaces/post.interface';
+
+@Controller('api/posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
   @Post()
-  create(@Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(createPostDto);
+  public async create(
+    @Body() createPostDto: CreatePostDto,
+    @CurrentUser() user: IUser,
+  ): Promise<IPost> {
+    const { author, ...post } = await this.postsService.create(
+      user,
+      createPostDto,
+    );
+    return {
+      ...post,
+      author: UserMapper.toUserPublicData(author),
+      comments: post.comments?.length ?? 0,
+      likes: post.likes?.length ?? 0,
+    };
   }
 
   @Public()
-  @Get()
-  findAll() {
-    return this.postsService.findAll();
+  @Get('v1.1')
+  public async getList(
+    @Query() query: PostsListQueryDto,
+    @CurrentUser() userData?: IUser | null,
+  ): Promise<PostsListResDto> {
+    const [posts, total] = await this.postsService.getList(userData, query);
+
+    const data = posts.map((post) => ({
+      ...post,
+      likes: post.likes.length,
+      comments: post.comments.length,
+      author: UserMapper.toUserPublicData(post.author),
+    }));
+    return { data, total, ...query };
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postsService.findOne(+id);
+  @Public()
+  @Get('v1.2')
+  public async getListQuery(
+    @Query() query: PostsListQueryDto,
+    @CurrentUser() userData?: IUser | null,
+  ): Promise<PostsListResDto> {
+    const [posts, total] = await this.postsService.getListQuery(
+      userData,
+      query,
+    );
+
+    const data = posts.map((post) => ({
+      ...post,
+      likes: post.likes.length,
+      comments: post.comments.length,
+    }));
+    return { data, total, ...query };
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(+id, updatePostDto);
+  @Get(':postId/v1.1')
+  public async findOne(
+    @CurrentUser() userData: IUser,
+    @Param('postId') postId: string,
+  ): Promise<IPost> {
+    const { author, ...post } = await this.postsService.getById(
+      userData,
+      +postId,
+    );
+    return { ...post, author: UserMapper.toUserPublicData(author) };
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postsService.remove(+id);
+  @Get(':postId/v1.2')
+  public async findOneQuery(
+    @CurrentUser() userData: IUser,
+    @Param('postId') postId: string,
+  ): Promise<IPost> {
+    return await this.postsService.getByIdQuery(userData, +postId);
+  }
+
+  @Patch(':postId')
+  public async update(
+    @CurrentUser() userData: IUser,
+    @Param('postId') postId: string,
+    @Body() dto: UpdatePostDto,
+  ) {
+    return await this.postsService.update(userData, +postId, dto);
+  }
+
+  @Delete(':postId')
+  public async remove(
+    @CurrentUser() user: IUser,
+    @Param('postId') postId: string,
+  ): Promise<void> {
+    return await this.postsService.remove(user, +postId);
+  }
+
+  @Post(':postId/like')
+  public async likePost(
+    @CurrentUser() userData: IUser,
+    @Param('postId') postId: string,
+  ): Promise<number> {
+    const result = await this.postsService.like(userData, +postId);
+    return result;
+  }
+
+  @Delete(':postId/like')
+  public async unlike(
+    @CurrentUser() userData: IUser,
+    @Param('postId') postId: string,
+  ): Promise<number> {
+    return await this.postsService.unlike(userData, +postId);
   }
 }

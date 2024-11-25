@@ -5,6 +5,7 @@ import { User } from '../../models/entities/user.entity';
 import { myDataSource } from '../../ormconfig';
 import { IUser } from '../../models/interfaces/user.interface';
 import { UserModel } from '../../models/schemas/user.schema';
+import { BaseUserReqDto } from '../../models/dto/user.req.dto';
 
 class UserRepository {
   private readonly repository: Repository<User>;
@@ -29,7 +30,22 @@ class UserRepository {
     return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
 
-  async create(user: Partial<IUser>): Promise<User> {
+  async findByIdQuery(id: string): Promise<User | null> {
+    const queryRunner = myDataSource.createQueryRunner();
+    await queryRunner.connect();
+
+    try {
+      const result = await queryRunner.query(
+        'SELECT FROM "users" WHERE id = $1',
+        [id],
+      );
+      return result;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async create(user: BaseUserReqDto): Promise<User> {
     const newUser = await UserModel.create(user);
     console.log('MONGODB:', newUser.toJSON());
     const userEntity = this.repository.create(user);
@@ -67,15 +83,22 @@ class UserRepository {
     }
   }
 
-  async deleteByIdNative(id: string): Promise<void> {
-    const queryRunner = myDataSource.createQueryRunner();
-    await queryRunner.connect();
+  async updateById(id: string, dto: IUser): Promise<User> {
+    const user = await this.repository.findOneBy({ id });
+    this.repository.merge(user, dto);
+    return await this.repository.save(user);
+  }
 
-    try {
-      await queryRunner.query('DELETE FROM "users" WHERE id = $1', [id]);
-    } finally {
-      await queryRunner.release();
-    }
+  async deleteById(id: string): Promise<void> {
+    await this.repository.delete(id);
+    //   const queryRunner = myDataSource.createQueryRunner();
+    //   await queryRunner.connect();
+
+    //   try {
+    //     await queryRunner.query('DELETE FROM "users" WHERE id = $1', [id]);
+    //   } finally {
+    //     await queryRunner.release();
+    //   }
   }
 }
 

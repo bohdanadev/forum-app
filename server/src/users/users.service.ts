@@ -34,20 +34,20 @@ export class UsersService implements OnModuleInit {
   async onModuleInit() {
     this.db = this.connection.db;
   }
-  async findAll(): Promise<User[]> {
-    await this.userModel.find().exec();
-    const users = await this.userRepository.find();
-    return plainToInstance(User, users, { excludeExtraneousValues: true });
-  }
-  async findAllQuery(): Promise<any> {
-    await this.db
-      .collection('users')
-      .find({}, { projection: { password: 0 } })
-      .toArray();
-    const query = 'SELECT * FROM "users"';
-    const users = await this.dataSource.query(query);
-    return plainToInstance(User, users, { excludeExtraneousValues: true });
-  }
+  // async findAll(): Promise<User[]> {
+  //   await this.userModel.find().exec();
+  //   const users = await this.userRepository.find();
+  //   return plainToInstance(User, users, { excludeExtraneousValues: true });
+  // }
+  // async findAllQuery(): Promise<any> {
+  //   await this.db
+  //     .collection('users')
+  //     .find({}, { projection: { password: 0 } })
+  //     .toArray();
+  //   const query = 'SELECT * FROM "users"';
+  //   const users = await this.dataSource.query(query);
+  //   return plainToInstance(User, users, { excludeExtraneousValues: true });
+  // }
 
   async create(createUserDto: SignUpReqDto): Promise<UserResDto> {
     //Mongo
@@ -67,6 +67,7 @@ export class UsersService implements OnModuleInit {
     const newUser = await createdUser.save();
     console.log(newUser.toJSON());
 
+    //POSTGRES
     const user = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
@@ -175,5 +176,28 @@ export class UsersService implements OnModuleInit {
     return result[0]
       ? plainToInstance(User, result[0], { excludeExtraneousValues: true })
       : undefined;
+  }
+
+  public async updateUserProfile(userData: string, dto: IUser): Promise<User> {
+    //MONGO
+    // const result = await this.userModel.updateOne(
+    //   { _id: new mongoose.Types.ObjectId(userData) },
+    //   dto,
+    // );
+    // console.log(result);
+
+    //Postgres
+    const user = await this.userRepository.findOneBy({ id: userData });
+    this.userRepository.merge(user, dto);
+    return await this.userRepository.save(user);
+  }
+
+  public async removeUserProfile(userData: string): Promise<void> {
+    //MONGO
+    await this.userModel.deleteOne({
+      _id: new mongoose.Types.ObjectId(userData),
+    });
+    //Postgres
+    await this.userRepository.delete({ id: userData });
   }
 }

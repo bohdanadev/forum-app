@@ -6,6 +6,7 @@ import { Config, JwtConfig } from '../../config/config.type';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../models/entities/user.entity';
+import { IJwtPayload } from '../../models/interfaces/token-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -22,7 +23,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: IJwtPayload) {
     return await this.userRepository.findOne({
       where: {
         id: payload.sub,

@@ -20,7 +20,7 @@ import { Public } from './public.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { CurrentUser } from './current-user.decorator';
 import { IUser } from '../../models/interfaces/user.interface';
-import { UsersService } from 'users/users.service';
+import { UsersService } from '../users/users.service';
 import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
 import { UserResDto } from '../../models/dto/user.res.dto';
 
@@ -44,10 +44,10 @@ export class AuthController {
     return this.userService.create(createUserDto);
   }
 
-  @UseGuards(LocalAuthGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
   logout(@Request() req, @Response() res) {
-    req.logout();
+    // req.logOut();
     res.status(HttpStatus.OK).send({ message: 'Logged out successfully' });
   }
 

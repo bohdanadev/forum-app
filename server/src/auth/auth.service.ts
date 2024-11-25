@@ -5,6 +5,7 @@ import { Config, JwtConfig } from '../../config/config.type';
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
 import { UsersService } from '../users/users.service';
 import { UserResDto } from '../../models/dto/user.res.dto';
+import { IUser } from '../../models/interfaces/user.interface';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: IUser) {
     const payload = { username: user.username, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload, {
