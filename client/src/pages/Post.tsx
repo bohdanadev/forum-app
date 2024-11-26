@@ -7,6 +7,51 @@ import comment from '../assets/comment.png';
 import edit from '../assets/edit.png';
 import remove from '../assets/remove.png';
 import LikeButton from '../components/Button/LikeButton';
+import Comments from '../components/Comment/Comments';
+
+const dummyComments = [
+  {
+    id: 1,
+    author: 'Alice',
+    content: 'This is a great post!',
+    replies: [
+      {
+        id: 2,
+        author: 'Bob',
+        content: 'I agree!',
+        replies: [
+          {
+            id: 3,
+            author: 'Charlie',
+            content: 'Same here!',
+          },
+          {
+            id: 3,
+            author: 'Charlie',
+            content: 'Same here!',
+          },
+          {
+            id: 3,
+            author: 'Charlie',
+            content: 'Same here!',
+          },
+        ],
+      },
+      {
+        id: 2,
+        author: 'Bob',
+        content: 'I agree!',
+        replies: [
+          {
+            id: 3,
+            author: 'Charlie',
+            content: 'Same here!',
+          },
+        ],
+      },
+    ],
+  },
+];
 
 interface IComment {
   id: number;
@@ -32,7 +77,7 @@ const ActionsContainer = styled.div`
   align-items: center;
 `;
 
-const ActionButton = styled.div`
+export const ActionButton = styled.div`
   width: 60px;
   height: 60px;
   border: none;
@@ -203,6 +248,7 @@ const Post = () => {
             </ActionButton>
           </ActionsContainer>
         </PostCard>
+        <Comments comments={dummyComments} />
       </MainContent>
 
       {/* Author Info Card */}
