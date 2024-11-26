@@ -1,43 +1,44 @@
 import { Router } from 'express';
 import { userController } from './users.controller';
-import { commonMiddleware } from '../middlewares/common.middleware';
-import validationSchema from '../../validation/joi.schema';
+import userValidationSchema from '../../validation/user.joi.schema';
 import { tryCatch } from '../middlewares/tryCatch.middleware';
-import { User } from '../../models/entities/user.entity';
 import { IUser } from '../../models/interfaces/user.interface';
 import { authMiddleware } from '../middlewares/auth.middleware';
+import { CommonMiddleware } from '../middlewares/common.middleware';
+import { UserModel } from '../../models/schemas/user.schema';
 
 const router = Router();
+export const commonMiddleware = new CommonMiddleware(UserModel);
 
 router.get('/v1.1', tryCatch(userController.getList));
 
 router.get('/v1.2', tryCatch(userController.getListQuery));
 
 router.get(
-  '/v1.1',
+  '/:id/v1.1',
   authMiddleware.authCheck,
-  commonMiddleware.isExist<IUser>(User, 'id'),
+  commonMiddleware.isExist<IUser>('id'),
   tryCatch(userController.getUserById),
 );
 
 router.get(
-  '/v1.2',
+  '/:id/v1.2',
   authMiddleware.authCheck,
-  commonMiddleware.isExist<IUser>(User, 'id'),
+  commonMiddleware.isExist<IUser>('id'),
   tryCatch(userController.getUserByIdQuery),
 );
 
 router.put(
   '/',
   authMiddleware.authCheck,
-  commonMiddleware.isBodyValid(validationSchema.update),
-  commonMiddleware.isExist<IUser>(User, 'username'),
+  commonMiddleware.isBodyValid(userValidationSchema.update),
+  commonMiddleware.isExist<IUser>('username'),
   tryCatch(userController.updateUserData),
 );
 router.delete(
   '/',
   authMiddleware.authCheck,
-  commonMiddleware.isExist<IUser>(User, 'username'),
+  commonMiddleware.isExist<IUser>('username'),
   tryCatch(userController.deleteUserProfile),
 );
 

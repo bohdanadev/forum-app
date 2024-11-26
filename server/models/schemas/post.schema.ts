@@ -14,7 +14,7 @@ export interface IPostDoc extends Document {
 
 const PostSchema = new Schema<IPostDoc>(
   {
-    title: { type: String, required: true },
+    title: { type: String, required: true, unique: true },
     content: { type: String, required: true },
     tags: [{ type: String }],
     imageUrl: { type: String },
@@ -25,4 +25,4 @@ const PostSchema = new Schema<IPostDoc>(
   { timestamps: true },
 );
 
-export const Post = mongoose.model<IPostDoc>('Post', PostSchema);
+export const PostModel = mongoose.model<IPostDoc>('Post', PostSchema);

@@ -29,7 +29,9 @@
     "models/**/*",
     "ormconfig.ts",
     "validation/**/*",
-    "utils/**/*"
+    "utils/**/*",
+    "types/**/*",
+    "types"
   ],
   "exclude": ["node_modules", "dist"]
 }

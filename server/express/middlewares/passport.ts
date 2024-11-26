@@ -4,8 +4,8 @@ import {
   StrategyOptions,
 } from 'passport-jwt';
 import * as passport from 'passport';
-import { userRepository } from '../users/users.repository';
 import { ConfigStaticService } from '../../config/config-static';
+import { UserModel } from '../../models/schemas/user.schema';
 
 export const config = ConfigStaticService.get();
 
@@ -17,7 +17,8 @@ const options: StrategyOptions = {
 passport.use(
   new JwtStrategy(options, async (jwtPayload, done) => {
     try {
-      const user = await userRepository.findById(jwtPayload.id);
+      const user = await UserModel.findById(jwtPayload.sub);
+      console.log('+-+-+++++++++', user);
 
       if (user) {
         return done(null, user);

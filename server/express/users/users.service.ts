@@ -18,20 +18,18 @@ class UserService {
       .toArray();
   }
 
-  public async getById(userId: string): Promise<UserResDto> {
+  public async getById(userId: string): Promise<IUser> {
     const user = await UserModel.findById(userId);
-    console.log(user);
-    return await userRepository.findById(userId);
+    return user;
+    // return await userRepository.findById(userId);
   }
-  public async getByIdQuery(userId: string): Promise<UserResDto> {
+  public async getByIdQuery(userId: string): Promise<any> {
+    const id = new mongoose.Types.ObjectId(userId);
     const user = await UserModel.db
       .collection('users')
-      .findOne(
-        { _id: new mongoose.Types.ObjectId(userId) },
-        { projection: { password: 0 } },
-      );
-    console.log(user);
-    return await userRepository.findByIdQuery(userId);
+      .findOne({ _id: id }, { projection: { password: 0 } });
+    return user;
+    //  return await userRepository.findByIdQuery(userId);
   }
 
   public async update(userId: string, dto: IUser): Promise<UserResDto> {

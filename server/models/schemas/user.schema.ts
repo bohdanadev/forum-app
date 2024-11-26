@@ -5,14 +5,16 @@ export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
+  avatarUrl: string;
   comparePassword(plainPassword: string): Promise<boolean>;
 }
 
 export const userSchema = new mongoose.Schema<UserDocument>(
   {
-    username: String,
-    email: String,
-    password: String,
+    username: { type: String, unique: true, required: true },
+    email: { type: String, unique: true, required: true },
+    password: { type: String, required: true },
+    avatarUrl: { type: String },
   },
   {
     timestamps: true,

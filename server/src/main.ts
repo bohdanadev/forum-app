@@ -24,8 +24,8 @@ async function bootstrap() {
   });
   const port = appConfig.nestPort;
   const host = appConfig.host;
-  await app.listen(port, () => {
-    Logger.log(`Server running on http://${host}:${port}`);
-  });
+  //   await app.listen(port, () => {
+  //     Logger.log(`Server running on http://${host}:${port}`);
+  //   });
 }
-bootstrap();
+// bootstrap();

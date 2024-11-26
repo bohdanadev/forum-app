@@ -18,7 +18,7 @@ export class Post {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'text', unique: true })
   title: string;
 
   @Column({ type: 'text' })

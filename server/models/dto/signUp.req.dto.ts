@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import {
+  IsEmail,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  Matches,
+} from 'class-validator';
 import { IsMatch } from '../../validation/is-match.constraint';
 
 export class SignUpReqDto {
@@ -20,4 +27,9 @@ export class SignUpReqDto {
   @Length(8, 30)
   @IsMatch('password')
   confirmPassword: string;
+
+  @IsString()
+  @IsUrl()
+  @IsOptional()
+  avatarUrl: string;
 }

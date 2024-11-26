@@ -26,8 +26,8 @@ class UserController {
     req: Request,
     res: Response,
   ): Promise<Response<UserResDto>> {
-    const id = req.params.userId;
-    const userId = req.res.locals.jwtPayload.userId as string;
+    const id = req.params.id;
+    const userId = req.user.id as string;
     const user = await userService.getById(id);
     const result =
       id === userId
@@ -40,8 +40,8 @@ class UserController {
     req: Request,
     res: Response,
   ): Promise<Response<UserResDto>> {
-    const id = req.params.userId;
-    const userId = req.res.locals.jwtPayload.userId as string;
+    const id = req.params.id;
+    const userId = req.user.id as string;
     const user = await userService.getByIdQuery(id);
     const result =
       id === userId

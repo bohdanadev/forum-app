@@ -1,23 +1,22 @@
 import { authMiddleware } from './../middlewares/auth.middleware';
 import { Router } from 'express';
 import { authController } from './auth.controller';
-import validationSchema from '../../validation/joi.schema';
+import userValidationSchema from '../../validation/user.joi.schema';
 import { tryCatch } from '../middlewares/tryCatch.middleware';
-import { commonMiddleware } from '../middlewares/common.middleware';
-import { User } from '../../models/entities/user.entity';
 import { IUser } from '../../models/interfaces/user.interface';
+import { commonMiddleware } from '../users/users.route';
 
 const router = Router();
 
 router.post(
   '/signup',
-  commonMiddleware.isBodyValid(validationSchema.signUp),
+  commonMiddleware.isBodyValid(userValidationSchema.signUp),
   tryCatch(authController.signUp),
 );
 router.post(
   '/signin',
-  commonMiddleware.isBodyValid(validationSchema.signIn),
-  commonMiddleware.isExist<IUser>(User, ['email', 'username']),
+  commonMiddleware.isBodyValid(userValidationSchema.signIn),
+  commonMiddleware.isExist<IUser>(['email', 'username']),
   tryCatch(authController.signIn),
 );
 

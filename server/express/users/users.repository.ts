@@ -6,6 +6,9 @@ import { myDataSource } from '../../ormconfig';
 import { IUser } from '../../models/interfaces/user.interface';
 import { UserModel } from '../../models/schemas/user.schema';
 import { BaseUserReqDto } from '../../models/dto/user.req.dto';
+import { UserResDto } from '../../models/dto/user.res.dto';
+import { SignInReqDto } from '../../models/dto/signIn.req.dto';
+import { NotFoundException } from '@nestjs/common';
 
 class UserRepository {
   private readonly repository: Repository<User>;
@@ -25,9 +28,10 @@ class UserRepository {
     return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
 
-  async findById(id: string): Promise<User | null> {
-    const users = this.repository.findOne({ where: { id } });
-    return plainToInstance(User, users, { excludeExtraneousValues: true });
+  async findById(id: string): Promise<IUser> {
+    return await UserModel.findById(id).exec();
+    // const users = this.repository.findOne({ where: { id } });
+    // return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
 
   async findByIdQuery(id: string): Promise<User | null> {
@@ -45,12 +49,15 @@ class UserRepository {
     }
   }
 
-  async create(user: BaseUserReqDto): Promise<User> {
+  async create(user: BaseUserReqDto): Promise<IUser> {
     const newUser = await UserModel.create(user);
-    console.log('MONGODB:', newUser.toJSON());
-    const userEntity = this.repository.create(user);
-    const savedUser = this.repository.save(userEntity);
-    return plainToInstance(User, savedUser, { excludeExtraneousValues: true });
+    await newUser.save();
+    return newUser.toJSON();
+
+    //POSTGRES
+    // const userEntity = this.repository.create(user);
+    // const savedUser = this.repository.save(userEntity);
+    // return plainToInstance(User, savedUser, { excludeExtraneousValues: true });
   }
 
   async findByEmailNative(email: string): Promise<User> {
@@ -68,19 +75,29 @@ class UserRepository {
     }
   }
 
-  async getByParamsQuery(param: string): Promise<User> {
-    const queryRunner = myDataSource.createQueryRunner();
-    await queryRunner.connect();
-
-    try {
-      const result = await queryRunner.query(
-        'SELECT * FROM "users" WHERE username = $1 OR email = $1 LIMIT 1',
-        [param],
-      );
-      return result[0] || null;
-    } finally {
-      await queryRunner.release();
+  async getByParamsQuery(dto: SignInReqDto): Promise<IUser> {
+    const existingUser = await UserModel.findOne({
+      $or: [{ email: dto.identifier }, { username: dto.identifier }],
+    });
+    if (existingUser && (await existingUser.comparePassword(dto.password))) {
+      return existingUser.toJSON();
+    } else {
+      throw new NotFoundException(`Wrong credentials`);
     }
+
+    //POSTGRES
+    // const queryRunner = myDataSource.createQueryRunner();
+    // await queryRunner.connect();
+
+    // try {
+    //   const result = await queryRunner.query(
+    //     'SELECT * FROM "users" WHERE username = $1 OR email = $1 LIMIT 1',
+    //     [param],
+    //   );
+    //   return result[0] || null;
+    // } finally {
+    //   await queryRunner.release();
+    // }
   }
 
   async updateById(id: string, dto: IUser): Promise<User> {
