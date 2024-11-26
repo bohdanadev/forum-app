@@ -1,7 +1,9 @@
+import { ApiError } from 'common/api-error';
 import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';
 import { FilterQuery, Types } from 'mongoose';
+import { HttpStatus } from '@nestjs/common';
 
 class PostService {
   async getList(query: PostsListQueryDto): Promise<[IPostDoc[], number]> {
@@ -101,6 +103,25 @@ class PostService {
       new: true,
       runValidators: true,
     });
+  }
+
+  async like(userId: string, id: string): Promise<IPostDoc> {
+    const post = await PostModel.findById(id);
+
+    if (post.author.toString() === userId) {
+      throw new ApiError('You cannot like your own post', HttpStatus.FORBIDDEN);
+    }
+
+    if (post.likes.includes(new Types.ObjectId(userId))) {
+      throw new ApiError(
+        'You have already liked this post',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    post.likes.push(new Types.ObjectId(userId));
+    await post.save();
+    return post;
   }
 
   async delete(id: string): Promise<IPostDoc | null> {

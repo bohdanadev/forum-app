@@ -36,6 +36,13 @@ router.post(
   tryCatch(postController.createPost),
 );
 
+router.post(
+  '/:id/like',
+  authMiddleware.authCheck,
+  commonMiddleware.isExist<IPost>('id'),
+  tryCatch(postController.likePost),
+);
+
 router.put(
   '/:id',
   authMiddleware.authCheck,
@@ -43,6 +50,7 @@ router.put(
   commonMiddleware.isExist<IPost>('id'),
   tryCatch(postController.updatePost),
 );
+
 router.delete(
   '/:id',
   authMiddleware.authCheck,

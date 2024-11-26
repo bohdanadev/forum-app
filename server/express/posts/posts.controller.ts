@@ -4,6 +4,8 @@ import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPost } from '../../models/interfaces/post.interface';
 import { postService } from './posts.service';
 import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
+import { PostModel } from '../../models/schemas/post.schema';
+import { ApiError } from 'common/api-error';
 
 class PostController {
   async getList(req: Request, res: Response): Promise<Response<IPost[]>> {
@@ -64,6 +66,21 @@ class PostController {
     const updatedPost = await postService.update(id, req.body);
 
     return res.status(HttpStatus.OK).json(updatedPost);
+  }
+
+  async likePost(
+    req: Request,
+    res: Response,
+  ): Promise<Response<{ message: string; likes: number }>> {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const post = await postService.like(userId, id);
+    if (!post) {
+      throw new ApiError('Post not found', HttpStatus.NOT_FOUND);
+    }
+    return res
+      .status(HttpStatus.OK)
+      .json({ message: 'Post liked successfully', likes: post.likes.length });
   }
 
   async deletePost(req: Request, res: Response): Promise<Response<void>> {
