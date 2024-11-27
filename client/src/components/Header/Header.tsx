@@ -6,6 +6,7 @@ import bgImage from '../../assets/bg.png';
 import avatar from '../../assets/avatar.png';
 import { authService } from '../../services/auth.service';
 import { userService } from '../../services/user.servise';
+import Search from '../Search/Search';
 
 export const StyledHeader = styled.header`
   position: relative;
@@ -109,6 +110,8 @@ const Header = () => {
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
+  const user = authService.isAuthenticated();
+
   const handleEditProfile = () => {
     setMenuOpen(false);
     navigate('/edit-profile');
@@ -116,22 +119,30 @@ const Header = () => {
 
   const handleDeleteAccount = (id: string) => {
     userService.deleteAccount(id);
+    authService.signOut();
     setMenuOpen(false);
   };
 
   return (
     <StyledHeader>
       <ButtonContainer>
-        <HeaderButton onClick={() => navigate('signin')}>Sign In</HeaderButton>
         <HeaderButton onClick={() => navigate('/')}>Home</HeaderButton>
+        <HeaderButton onClick={() => {}}>Add post</HeaderButton>
       </ButtonContainer>
+      <Search />
       <AvatarContainer>
-        <AvatarImg src={avatar} alt='avatar' onClick={toggleMenu} />
+        <AvatarImg
+          //  src={user.avatarUrl ?? avatar}
+          src={avatar}
+          alt='avatar'
+          onClick={toggleMenu}
+        />
+        {/* <h4>{user.username} ?? Username</h4> */}
         <h4>Username</h4>
         {menuOpen && (
           <Menu>
             <MenuItem onClick={handleEditProfile}>Edit Profile</MenuItem>
-            <MenuItem onClick={() => handleDeleteAccount('1')}>
+            <MenuItem onClick={() => handleDeleteAccount(user.id)}>
               Delete Account
             </MenuItem>
           </Menu>

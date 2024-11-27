@@ -19,20 +19,23 @@ class AuthService extends HttpService {
       API_KEYS.SIGN_IN,
       credentials
     );
-    this.storeToken(response.access_token);
-    return response.user;
+    this.storeToken(response.access_token, response.user);
   }
 
   signOut() {
     localStorage.removeItem('accessToken');
+    localStorage.removeItem('user');
   }
 
-  private storeToken(token: string) {
+  private storeToken(token: string, user: IUser) {
     localStorage.setItem('accessToken', token);
+    localStorage.setItem('user', JSON.stringify(user));
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem('accessToken');
+  isAuthenticated() {
+    if (localStorage.getItem('accessToken')) {
+      return JSON.parse(localStorage.getItem('user')!);
+    }
   }
 }
 

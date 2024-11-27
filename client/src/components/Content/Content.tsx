@@ -1,40 +1,48 @@
+import { FC } from 'react';
 import styled from 'styled-components';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useFetchPosts } from '../../hooks/useFetchPosts';
+import PostCard from './PostCard';
 
 export const MainContent = styled.div`
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-height: 40vh;
+  overflow: scroll;
 `;
 
-export const PostCard = styled.div`
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
+const Content: FC = () => {
+  const { data, fetchNextPage, hasNextPage, isLoading, isError } =
+    useFetchPosts({
+      search: '',
+      tag: '',
+      authorId: '',
+      limit: 4,
+      offset: 0,
+    });
 
-export const PostTitle = styled.h3`
-  margin: 0;
-  font-size: 1.1em;
-  color: #333;
-`;
+  if (isLoading) return <div>Loading...</div>;
+  if (isError) return <p>Failed to load posts.</p>;
 
-export const PostInfo = styled.div`
-  display: flex;
-  justify-content: space-between;
-  color: #888;
-  font-size: 0.9em;
-`;
+  const fetchedPostsCount =
+    data?.pages.reduce((total, page) => total + page.data.length, 0) || 0;
 
-export const Tag = styled.span`
-  background-color: #e0e0e0;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 0.8em;
-  color: #666;
-  margin-right: 5px;
-`;
+  return (
+    <InfiniteScroll
+      dataLength={fetchedPostsCount}
+      hasMore={!!hasNextPage}
+      next={() => fetchNextPage()}
+      loader={<h4>Loading...</h4>}
+    >
+      {data?.pages
+        .flatMap((page) => page.data)
+        .map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+    </InfiniteScroll>
+  );
+};
+
+export default Content;

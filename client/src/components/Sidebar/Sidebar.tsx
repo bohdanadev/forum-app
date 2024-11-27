@@ -4,6 +4,7 @@ import { authService } from '../../services/auth.service';
 
 export const SidebarContainer = styled.div`
   width: 200px;
+  max-height: 40vh;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;
@@ -28,6 +29,7 @@ export const StyledLink = styled(Link)`
   text-decoration: none;
   color: inherit;
   display: block;
+  margin: 5px 0;
 `;
 const NotificationsContainer = styled.div`
   display: flex;

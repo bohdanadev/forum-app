@@ -43,10 +43,10 @@ class AuthService {
       sub: result.id,
     };
 
-    const token = await generateAccessToken(payload);
+    const access_token = await generateAccessToken(payload);
     const user = UserMapper.toResponseDTO(result);
 
-    return { user, token };
+    return { user, access_token };
   }
 }
 

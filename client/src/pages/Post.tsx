@@ -8,6 +8,10 @@ import edit from '../assets/edit.png';
 import remove from '../assets/remove.png';
 import LikeButton from '../components/Button/LikeButton';
 import Comments from '../components/Comment/Comments';
+import { postService } from '../services/post.service';
+import { useParams } from 'react-router-dom';
+import { useFetchPost } from '../hooks/useFetchPost';
+import moment from 'moment';
 
 const dummyComments = [
   {
@@ -199,56 +203,64 @@ const AuthorCard = styled.div`
 `;
 
 const Post = () => {
-  // const { id } = useParams();
+  const { id } = useParams();
   const [isEditModalOpen, setEditModalOpen] = useState(false);
+  const [isCommentsOpen, setCommentsOpen] = useState(false);
+  const { data: post, isLoading, error } = useFetchPost(id!);
+  const [title, setTitle] = useState(post?.title || '');
+  const [content, setContent] = useState(post?.content || '');
 
   const openEditModal = () => setEditModalOpen(true);
   const closeEditModal = () => setEditModalOpen(false);
 
-  const deletePost = () => {
-    console.log('Delete post');
+  const likePost = async () => {
+    if (post) {
+      await postService.likePost(post.id);
+    }
   };
+
+  const deletePost = async (id) => {
+    await postService.deletePost(id);
+  };
+
+  if (isLoading) return <h4>Loading...</h4>;
+  if (error) return <p>Failed to load post.</p>;
 
   return (
     <PageContainer>
       <MainContent>
         <PostCard>
           <PostHeader>
-            <h1>Lecture Rescheduling</h1>
+            <h1>{post?.title}</h1>
             <PostMeta>
-              <span>Elisabeth May</span>
-              <span>6h ago</span>
+              <span>{post?.author.username}</span>
+              <span>{moment(post?.createdAt).fromNow()}</span>
             </PostMeta>
           </PostHeader>
           <TagsContainer>
-            <span>Accounting</span>
+            {post?.tags?.map((tag, index) => (
+              <span key={index}>{tag}</span>
+            ))}
           </TagsContainer>
-          <PostContent>
-            Hi mates, <br />
-            So I talked with Dr. Hellen, and because of her illness, we need to{' '}
-            <strong>reschedule the upcoming lecture</strong>. You probably
-            notice that this lecture is the last before the exam, so Dr. Hellen
-            also asked if we want to attend an additional lecture where we can
-            study more difficult exercises.
-          </PostContent>
+          <PostContent>{post?.content}</PostContent>
           <ActionsContainer>
             <ActionButton>
-              <LikeButton />
+              <LikeButton action={likePost} />
               <span>15</span>
             </ActionButton>
-            <ActionButton>
+            <ActionButton onClick={() => setCommentsOpen(!isCommentsOpen)}>
               <img src={comment} alt='comment' />
               <span>111</span>
             </ActionButton>
             <ActionButton onClick={openEditModal}>
               <img src={edit} alt='edit' />
             </ActionButton>
-            <ActionButton onClick={deletePost}>
+            <ActionButton onClick={() => deletePost(post?.id)}>
               <img src={remove} alt='remove' />
             </ActionButton>
           </ActionsContainer>
         </PostCard>
-        <Comments comments={dummyComments} />
+        {isCommentsOpen && <Comments comments={dummyComments} />}
       </MainContent>
 
       {/* Author Info Card */}
@@ -269,17 +281,24 @@ const Post = () => {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              console.log('Update post logic');
+              postService.updatePost(post!.id!, { title, content });
               closeEditModal();
             }}
           >
             <div>
               <label>Title:</label>
-              <input type='text' value={'Title'} />
+              <input
+                type='text'
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
             </div>
             <div>
               <label>Content:</label>
-              <textarea value={'post.content'}></textarea>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+              ></textarea>
             </div>
             <Button type='submit'>Save Changes</Button>
           </form>

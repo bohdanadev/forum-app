@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import like from '../../assets/like.png';
 
@@ -38,12 +38,16 @@ const FlyingHeart = styled.img<{ isFlying: boolean }>`
   pointer-events: none;
 `;
 
-const LikeButton = () => {
+interface IProps {
+  action: () => Promise<void>;
+}
+
+const LikeButton: FC<IProps> = ({ action }) => {
   const [isFlying, setIsFlying] = useState(false);
 
-  const handleLikeClick = () => {
+  const handleLikeClick = async () => {
     setIsFlying(true);
-
+    await action();
     setTimeout(() => {
       setIsFlying(false);
     }, 1000);

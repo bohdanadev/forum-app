@@ -1,6 +1,6 @@
 import { UserResDto } from './user.res.dto';
 
 export class AuthResDto {
-  token: string;
+  access_token: string;
   user: UserResDto;
 }

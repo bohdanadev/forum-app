@@ -1,4 +1,4 @@
-import {
+import Content, {
   MainContent,
   PostCard,
   PostInfo,
@@ -11,7 +11,8 @@ const HomePage = () => {
   return (
     <div style={{ display: 'flex', gap: '20px' }}>
       <MainContent>
-        <StyledLink to={'/posts/1'}>
+        <Content />
+        {/* <StyledLink to={'/posts/1'}>
           <PostCard>
             <PostTitle>Lorem ipsum dolor sit amet...</PostTitle>
             <PostInfo>
@@ -76,7 +77,7 @@ const HomePage = () => {
             <Tag>TS</Tag>
             <Tag>CSS</Tag>
           </div>
-        </PostCard>
+        </PostCard> */}
       </MainContent>
     </div>
   );
