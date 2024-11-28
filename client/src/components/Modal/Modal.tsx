@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 interface ModalProps {
+  title: string;
   isOpen: boolean;
   onClose: () => void;
   children: ReactNode;
@@ -95,14 +96,14 @@ const ModalHeader = styled.div`
   }
 `;
 
-const Modal: FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal: FC<ModalProps> = ({ title, isOpen, onClose, children }) => {
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
     <ModalOverlay onClick={onClose}>
       <ModalContent onClick={(e) => e.stopPropagation()}>
         <ModalHeader>
-          <h2>Edit Profile</h2>
+          <h2>{title}</h2>
           <button onClick={onClose}>&times;</button>
         </ModalHeader>
         {children}

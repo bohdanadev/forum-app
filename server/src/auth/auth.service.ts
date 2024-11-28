@@ -27,6 +27,7 @@ export class AuthService {
   }
 
   async login(user: IUser) {
+    console.log('LOGIN_POSTGRES_USER', user);
     const payload = { username: user.username, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload, {

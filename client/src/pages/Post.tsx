@@ -12,6 +12,7 @@ import { postService } from '../services/post.service';
 import { useParams } from 'react-router-dom';
 import { useFetchPost } from '../hooks/useFetchPost';
 import moment from 'moment';
+import { authService } from '../services/auth.service';
 
 const dummyComments = [
   {
@@ -212,14 +213,18 @@ const Post = () => {
 
   const openEditModal = () => setEditModalOpen(true);
   const closeEditModal = () => setEditModalOpen(false);
+  const openComments = () => setCommentsOpen(!isCommentsOpen);
+
+  const user = authService.isAuthenticated();
+  console.log(user);
 
   const likePost = async () => {
     if (post) {
-      await postService.likePost(post.id);
+      await postService.likePost(post.id!);
     }
   };
 
-  const deletePost = async (id) => {
+  const deletePost = async (id: number) => {
     await postService.deletePost(id);
   };
 
@@ -248,14 +253,14 @@ const Post = () => {
               <LikeButton action={likePost} />
               <span>15</span>
             </ActionButton>
-            <ActionButton onClick={() => setCommentsOpen(!isCommentsOpen)}>
+            <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <span>111</span>
+              <span>{post?.comments}</span>
             </ActionButton>
             <ActionButton onClick={openEditModal}>
               <img src={edit} alt='edit' />
             </ActionButton>
-            <ActionButton onClick={() => deletePost(post?.id)}>
+            <ActionButton onClick={() => deletePost(post!.id!)}>
               <img src={remove} alt='remove' />
             </ActionButton>
           </ActionsContainer>
@@ -265,11 +270,11 @@ const Post = () => {
 
       {/* Author Info Card */}
       <AuthorCard>
-        <img src={user} alt='Author' />
-        <h3>Dr. Ronald Jackson</h3>
-        <p>Main Lecturer</p>
-        <a href='tel:+48550233553' className='contact'>
-          +48 550 233 553
+        <img src={post?.author.avatarUrl} alt='Author' />
+        <h3>{post?.author.username}</h3>
+        <p>Acclaimed author of the post</p>
+        <a href='tel:+38000000000' className='contact'>
+          +38 000 000 000
         </a>
       </AuthorCard>
       {isEditModalOpen && (

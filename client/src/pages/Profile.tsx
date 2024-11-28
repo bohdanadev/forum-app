@@ -1,7 +1,11 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import avatarImage from '../assets/avatar.png';
+import avatar from '../assets/avatar.png';
 import Modal from '../components/Modal/Modal';
+import { authService } from '../services/auth.service';
+import { useParams } from 'react-router-dom';
+import { userService } from '../services/user.servise';
+import useFetchUser from '../hooks/useFetchUser';
 
 const ProfileContainer = styled.div`
   margin: 0;
@@ -79,13 +83,22 @@ const EditButton = styled.button`
 `;
 
 const Profile: FC = () => {
-  const userData = {
-    username: 'John Doe',
-    email: 'johndoe@example.com',
-    phone: '123-456-7890',
-    address: '123 Main St, Springfield, USA',
-    joined: 'January 1, 2023',
-  };
+  const { id } = useParams();
+  const { isPending, isError, data, error } = useFetchUser(id!);
+
+  // useEffect(()=> {
+
+  // },[id])
+  const { id: userId, username, email, avatarUrl, createdAt: joined } = data;
+
+  const currentUser = authService.isAuthenticated();
+  // const userData = {
+  //   username: 'John Doe',
+  //   email: 'johndoe@example.com',
+  //   phone: '123-456-7890',
+  //   address: '123 Main St, Springfield, USA',
+  //   joined: 'January 1, 2023',
+  // };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -99,50 +112,52 @@ const Profile: FC = () => {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    console.log('Profile Updated');
+    useUpdateProfileMutation(event.target.value);
     setIsModalOpen(false);
   };
+
+  if (isPending) {
+    return <span>Loading...</span>;
+  }
+
+  if (isError) {
+    return <span>Error: {error.message}</span>;
+  }
 
   return (
     <ProfileContainer>
       <Header>
-        <Avatar src={avatarImage} alt='User Avatar' />
-        <Username>{userData.username}</Username>
-        <Email>{userData.email}</Email>
+        <Avatar src={avatarUrl ?? avatar} alt='User Avatar' />
+        <Username>{username}</Username>
       </Header>
       <InfoSection>
         <InfoItem>
-          <Label>Phone:</Label>
-          <Value>{userData.phone}</Value>
-        </InfoItem>
-        <InfoItem>
-          <Label>Address:</Label>
-          <Value>{userData.address}</Value>
-        </InfoItem>
-        <InfoItem>
+          {id === userId && <Email>{email}</Email>}
           <Label>Member Since:</Label>
-          <Value>{userData.joined}</Value>
+          <Value>{joined}</Value>
         </InfoItem>
       </InfoSection>
-      <EditButton onClick={handleEditProfile}>Edit Profile</EditButton>
+      {id === userId && (
+        <EditButton onClick={handleEditProfile}>Edit Profile</EditButton>
+      )}
 
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        title={'Edit Profile'}
+      >
         <form onSubmit={handleSubmit}>
           <div>
-            <label htmlFor='name'>Name:</label>
-            <input id='name' type='text' defaultValue='John Doe' />
+            <label htmlFor='avatarUrl'>Avatar:</label>
+            <input id='avatarUrl' type='image' defaultValue={avatarUrl} />
           </div>
           <div>
             <label htmlFor='email'>Email:</label>
-            <input
-              id='email'
-              type='email'
-              defaultValue='john.doe@example.com'
-            />
+            <input id='email' type='email' defaultValue={email} />
           </div>
           <div>
             <label htmlFor='username'>Username:</label>
-            <input id='username' type='text' defaultValue='johndoe' />
+            <input id='username' type='text' defaultValue={username} />
           </div>
           <button type='submit'>Save Changes</button>
         </form>

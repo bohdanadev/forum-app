@@ -7,6 +7,8 @@ import avatar from '../../assets/avatar.png';
 import { authService } from '../../services/auth.service';
 import { userService } from '../../services/user.servise';
 import Search from '../Search/Search';
+import Modal from '../Modal/Modal';
+import { postService } from '../../services/post.service';
 
 export const StyledHeader = styled.header`
   position: relative;
@@ -107,15 +109,18 @@ export const MenuItem = styled.button`
 const Header = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
 
   const user = authService.isAuthenticated();
 
-  const handleEditProfile = () => {
-    setMenuOpen(false);
-    navigate('/edit-profile');
-  };
+  // const handleEditProfile = () => {
+  //   setMenuOpen(false);
+  //   navigate('/edit-profile');
+  // };
 
   const handleDeleteAccount = (id: string) => {
     userService.deleteAccount(id);
@@ -127,7 +132,7 @@ const Header = () => {
     <StyledHeader>
       <ButtonContainer>
         <HeaderButton onClick={() => navigate('/')}>Home</HeaderButton>
-        <HeaderButton onClick={() => {}}>Add post</HeaderButton>
+        <HeaderButton onClick={openModal}>Add post</HeaderButton>
       </ButtonContainer>
       <Search />
       <AvatarContainer>
@@ -146,6 +151,34 @@ const Header = () => {
               Delete Account
             </MenuItem>
           </Menu>
+        )}
+        {modalOpen && (
+          <Modal isOpen={modalOpen} onClose={closeModal} title='Create Post'>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                postService.createPost(post!.id!, { title, content, imageUrl });
+                closeModal();
+              }}
+            >
+              <div>
+                <label>Title:</label>
+                <input
+                  type='text'
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <label>Content:</label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                ></textarea>
+              </div>
+              <Button type='submit'>Save Changes</Button>
+            </form>
+          </Modal>
         )}
       </AvatarContainer>
     </StyledHeader>

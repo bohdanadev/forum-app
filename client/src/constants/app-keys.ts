@@ -11,4 +11,5 @@ export const QUERY_KEYS = {
   ALL: 'all',
   POSTS: 'posts',
   POST: 'post',
+  USER: 'user',
 };

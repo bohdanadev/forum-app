@@ -7,13 +7,16 @@ export class UserMapper {
       id: data.id,
       username: data.username,
       email: data.email,
+      avatarUrl: data.avatarUrl,
       createdAt: data.createdAt,
     };
   }
 
   public static toUserPublicData(data: IUser): Partial<UserResDto> {
     return {
+      id: data.id,
       username: data.username,
+      avatarUrl: data.avatarUrl,
       createdAt: data.createdAt,
     };
   }
