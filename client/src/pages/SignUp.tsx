@@ -3,11 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import ReusableForm from '../components/ReusableForm/ReusableForm';
 import { authService } from '../services/auth.service';
+import { ISignUp } from '../interfaces/auth.interface';
+import { SubmitHandler } from 'react-hook-form';
 
 const SignUp: FC = () => {
   const navigate = useNavigate();
 
-  const onSubmit = async (data: any) => {
+  const onSubmit: SubmitHandler<ISignUp> = async (data) => {
     await authService.signUp(data);
 
     navigate('/signin');
@@ -20,6 +22,7 @@ const SignUp: FC = () => {
         fields={[
           { name: 'username', label: 'Username', type: 'text' },
           { name: 'email', label: 'Email', type: 'email' },
+          { name: 'avatarUrl', label: 'Avatar', type: 'url' },
           { name: 'password', label: 'Password', type: 'password' },
           {
             name: 'confirmPassword',

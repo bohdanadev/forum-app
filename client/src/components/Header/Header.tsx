@@ -5,10 +5,13 @@ import styled from 'styled-components';
 import bgImage from '../../assets/bg.png';
 import avatar from '../../assets/avatar.png';
 import { authService } from '../../services/auth.service';
-import { userService } from '../../services/user.servise';
 import Search from '../Search/Search';
 import Modal from '../Modal/Modal';
-import { postService } from '../../services/post.service';
+import useMutateProfile from '../../hooks/useMutateProfile';
+import useCreatePost from '../../hooks/useCreatePost';
+import { IPost } from '../../interfaces/post.interface';
+import { Button } from '../Button/Button';
+import axios from 'axios';
 
 export const StyledHeader = styled.header`
   position: relative;
@@ -110,6 +113,11 @@ const Header = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const [post, setPost] = useState<
+    Pick<IPost, 'title' | 'imageUrl' | 'content' | 'tags'>
+  >({ title: '', imageUrl: '', content: '', tags: [] });
 
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const openModal = () => setModalOpen(true);
@@ -117,70 +125,100 @@ const Header = () => {
 
   const user = authService.isAuthenticated();
 
-  // const handleEditProfile = () => {
-  //   setMenuOpen(false);
-  //   navigate('/edit-profile');
-  // };
+  const { mutate: deleteAccount, reset: resetForm } = useMutateProfile();
+  const { mutate: createPost, error, reset } = useCreatePost();
 
-  const handleDeleteAccount = (id: string) => {
-    userService.deleteAccount(id);
-    authService.signOut();
+  if (error && axios.isAxiosError(error)) {
+    setErrorMessage(error.message);
+  }
+
+  const handleDeleteAccount = () => {
+    deleteAccount({});
     setMenuOpen(false);
+  };
+
+  const handleCreatePost = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    createPost(post);
+    resetForm();
+    closeModal();
   };
 
   return (
     <StyledHeader>
       <ButtonContainer>
         <HeaderButton onClick={() => navigate('/')}>Home</HeaderButton>
-        <HeaderButton onClick={openModal}>Add post</HeaderButton>
+        {user && <HeaderButton onClick={openModal}>Add post</HeaderButton>}
       </ButtonContainer>
       <Search />
-      <AvatarContainer>
-        <AvatarImg
-          //  src={user.avatarUrl ?? avatar}
-          src={avatar}
-          alt='avatar'
-          onClick={toggleMenu}
-        />
-        {/* <h4>{user.username} ?? Username</h4> */}
-        <h4>Username</h4>
-        {menuOpen && (
-          <Menu>
-            <MenuItem onClick={handleEditProfile}>Edit Profile</MenuItem>
-            <MenuItem onClick={() => handleDeleteAccount(user.id)}>
-              Delete Account
-            </MenuItem>
-          </Menu>
-        )}
-        {modalOpen && (
-          <Modal isOpen={modalOpen} onClose={closeModal} title='Create Post'>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                postService.createPost(post!.id!, { title, content, imageUrl });
-                closeModal();
-              }}
-            >
-              <div>
-                <label>Title:</label>
-                <input
-                  type='text'
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-              <div>
-                <label>Content:</label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                ></textarea>
-              </div>
-              <Button type='submit'>Save Changes</Button>
-            </form>
-          </Modal>
-        )}
-      </AvatarContainer>
+      {user ? (
+        <AvatarContainer>
+          <AvatarImg
+            src={user.avatarUrl ?? avatar}
+            alt='avatar'
+            onClick={toggleMenu}
+          />
+          <h4>{user.username ?? 'Username'}</h4>
+
+          {menuOpen && (
+            <Menu>
+              <MenuItem onClick={handleDeleteAccount}>Delete Account</MenuItem>
+            </Menu>
+          )}
+        </AvatarContainer>
+      ) : (
+        <HeaderButton onClick={() => navigate('signin')}>SignIn</HeaderButton>
+      )}
+      {modalOpen && (
+        <Modal isOpen={modalOpen} onClose={closeModal} title='Create Post'>
+          <form onSubmit={handleCreatePost}>
+            {errorMessage && <h5 onClick={() => reset()}>{errorMessage}</h5>}
+            <div>
+              <label>Title:</label>
+              <input
+                type='text'
+                value={post.title}
+                onChange={(e) => setPost({ ...post, title: e.target.value })}
+              />
+            </div>
+            <div>
+              <img
+                src={post.imageUrl}
+                alt='Image Preview'
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '15%',
+                  objectFit: 'cover',
+                  border: '2px solid #ccc',
+                }}
+              />
+              <label>Image:</label>
+              <input
+                type='url'
+                value={post.imageUrl}
+                onChange={(e) => setPost({ ...post, imageUrl: e.target.value })}
+              />
+            </div>
+            <div>
+              <label>Content:</label>
+              <textarea
+                value={post.content}
+                onChange={(e) => setPost({ ...post, content: e.target.value })}
+              ></textarea>
+            </div>
+            <div>
+              <label>Tags:</label>
+              <input
+                type='text'
+                value={post.tags}
+                onChange={(e) => setPost({ ...post, tags: [e.target.value] })}
+              />
+            </div>
+            <Button type='submit'>Save Changes</Button>
+          </form>
+        </Modal>
+      )}
     </StyledHeader>
   );
 };

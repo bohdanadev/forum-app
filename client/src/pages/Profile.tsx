@@ -1,11 +1,14 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useState } from 'react';
 import styled from 'styled-components';
 import avatar from '../assets/avatar.png';
 import Modal from '../components/Modal/Modal';
 import { authService } from '../services/auth.service';
 import { useParams } from 'react-router-dom';
-import { userService } from '../services/user.servise';
 import useFetchUser from '../hooks/useFetchUser';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { IUser } from '../interfaces/user.interface';
+import useMutateProfile from '../hooks/useMutateProfile';
+import moment from 'moment';
 
 const ProfileContainer = styled.div`
   margin: 0;
@@ -84,12 +87,12 @@ const EditButton = styled.button`
 
 const Profile: FC = () => {
   const { id } = useParams();
+  const { register, handleSubmit, setValue, watch } = useForm<IUser>();
   const { isPending, isError, data, error } = useFetchUser(id!);
 
   // useEffect(()=> {
 
   // },[id])
-  const { id: userId, username, email, avatarUrl, createdAt: joined } = data;
 
   const currentUser = authService.isAuthenticated();
   // const userData = {
@@ -102,6 +105,8 @@ const Profile: FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const { mutate } = useMutateProfile();
+
   const handleEditProfile = () => {
     setIsModalOpen(true);
   };
@@ -110,9 +115,8 @@ const Profile: FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-    useUpdateProfileMutation(event.target.value);
+  const editProfile: SubmitHandler<Partial<IUser>> = (user) => {
+    mutate({ data: user });
     setIsModalOpen(false);
   };
 
@@ -127,17 +131,17 @@ const Profile: FC = () => {
   return (
     <ProfileContainer>
       <Header>
-        <Avatar src={avatarUrl ?? avatar} alt='User Avatar' />
-        <Username>{username}</Username>
+        <Avatar src={data.avatarUrl ?? avatar} alt='User Avatar' />
+        <Username>{data.username}</Username>
       </Header>
       <InfoSection>
         <InfoItem>
-          {id === userId && <Email>{email}</Email>}
+          {currentUser.id === data.id && <Email>Email: {data.email}</Email>}
           <Label>Member Since:</Label>
-          <Value>{joined}</Value>
+          <Value>{moment(data.createdAt).format('MMMM Do YYYY')}</Value>
         </InfoItem>
       </InfoSection>
-      {id === userId && (
+      {currentUser.id === data.id && (
         <EditButton onClick={handleEditProfile}>Edit Profile</EditButton>
       )}
 
@@ -146,18 +150,33 @@ const Profile: FC = () => {
         onClose={handleCloseModal}
         title={'Edit Profile'}
       >
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit(editProfile)}>
           <div>
             <label htmlFor='avatarUrl'>Avatar:</label>
-            <input id='avatarUrl' type='image' defaultValue={avatarUrl} />
+            <input
+              id='avatarUrl'
+              type='url'
+              {...register('avatarUrl')}
+              defaultValue={data.avatarUrl}
+            />
           </div>
           <div>
             <label htmlFor='email'>Email:</label>
-            <input id='email' type='email' defaultValue={email} />
+            <input
+              id='email'
+              type='email'
+              {...register('email')}
+              defaultValue={data.email}
+            />
           </div>
           <div>
             <label htmlFor='username'>Username:</label>
-            <input id='username' type='text' defaultValue={username} />
+            <input
+              id='username'
+              type='text'
+              {...register('username')}
+              defaultValue={data.username}
+            />
           </div>
           <button type='submit'>Save Changes</button>
         </form>

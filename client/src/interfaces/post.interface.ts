@@ -6,7 +6,7 @@ export interface IPost {
   content: string;
   tags: string[];
   imageUrl: string;
-  author: Pick<IUser, 'username' | 'createdAt' | 'avatarUrl'>;
+  author: Pick<IUser, 'id' | 'username' | 'createdAt' | 'avatarUrl'>;
   likes: number;
   comments: number;
   createdAt: Date;

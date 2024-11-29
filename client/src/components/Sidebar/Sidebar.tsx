@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { authService } from '../../services/auth.service';
+import { API_KEYS } from '../../constants/app-keys';
 
 export const SidebarContainer = styled.div`
   width: 200px;
@@ -54,6 +55,8 @@ const Notification = styled.div`
 
 const Sidebar = () => {
   const navigate = useNavigate();
+
+  const currentUser = authService.isAuthenticated();
   const logout = async () => {
     authService.signOut();
     navigate('/signin');
@@ -64,7 +67,7 @@ const Sidebar = () => {
         <SidebarItem>Notifications</SidebarItem>
         <Notification>74</Notification>
       </NotificationsContainer>
-      <Link to={'/users/1'}>
+      <Link to={`${API_KEYS.USERS}/${currentUser.id}`}>
         <SidebarItem>Profile</SidebarItem>
       </Link>
       <SidebarItem>My posts</SidebarItem>

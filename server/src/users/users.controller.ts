@@ -55,10 +55,7 @@ export class UsersController {
     @CurrentUser() userData: IUser,
     @Body() dto: IUser,
   ): Promise<UserResDto> {
-    const result = await this.usersService.updateUserProfile(
-      userData.username,
-      dto,
-    );
+    const result = await this.usersService.updateUserProfile(userData.id, dto);
     return UserMapper.toResponseDTO(result);
   }
 

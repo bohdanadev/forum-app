@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import Modal from '../components/Modal/Modal';
 import { Button } from '../components/Button/Button';
-import user from '../assets/user.png';
 import comment from '../assets/comment.png';
 import edit from '../assets/edit.png';
 import remove from '../assets/remove.png';
@@ -13,6 +12,9 @@ import { useParams } from 'react-router-dom';
 import { useFetchPost } from '../hooks/useFetchPost';
 import moment from 'moment';
 import { authService } from '../services/auth.service';
+import useMutatePost from '../hooks/useMutatePost';
+import { IPost } from '../interfaces/post.interface';
+import { SubmitHandler, useForm } from 'react-hook-form';
 
 const dummyComments = [
   {
@@ -208,15 +210,31 @@ const Post = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
   const { data: post, isLoading, error } = useFetchPost(id!);
-  const [title, setTitle] = useState(post?.title || '');
-  const [content, setContent] = useState(post?.content || '');
+  // const [title, setTitle] = useState(post?.title || '');
+  // const [content, setContent] = useState(post?.content || '');
+  const [previewUrl, setPreviewUrl] = useState(post?.imageUrl || '');
+  const [tags, setTags] = useState(post?.tags ?? []);
+  const { register, handleSubmit, setValue, watch } = useForm<Partial<IPost>>();
 
   const openEditModal = () => setEditModalOpen(true);
   const closeEditModal = () => setEditModalOpen(false);
   const openComments = () => setCommentsOpen(!isCommentsOpen);
 
+  const { mutate: mutatePost } = useMutatePost();
+
   const user = authService.isAuthenticated();
-  console.log(user);
+  console.log('POST COMPONENT', user);
+
+  const imageUrl = watch('imageUrl', '');
+
+  useEffect(() => {
+    setPreviewUrl(imageUrl || '../../assets/avatar.png');
+  }, [imageUrl]);
+
+  const updatePost: SubmitHandler<Partial<IPost>> = (post) => {
+    mutatePost({ id, post });
+    closeEditModal();
+  };
 
   const likePost = async () => {
     if (post) {
@@ -224,8 +242,23 @@ const Post = () => {
     }
   };
 
-  const deletePost = async (id: number) => {
-    await postService.deletePost(id);
+  const deletePost = (id: number) => {
+    mutatePost({ id });
+  };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+      e.preventDefault();
+      setTags([...tags, e.currentTarget.value.trim()]);
+      setValue('tags', [...tags, e.currentTarget.value.trim()]);
+      e.currentTarget.value = '';
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    const updatedTags = tags.filter((tag) => tag !== tagToRemove);
+    setTags(updatedTags);
+    setValue('tags', updatedTags);
   };
 
   if (isLoading) return <h4>Loading...</h4>;
@@ -247,22 +280,30 @@ const Post = () => {
               <span key={index}>{tag}</span>
             ))}
           </TagsContainer>
-          <PostContent>{post?.content}</PostContent>
+          <PostContent>
+            <img src={post?.imageUrl} alt='Post Image' />
+            <br />
+            {post?.content}
+          </PostContent>
           <ActionsContainer>
             <ActionButton>
               <LikeButton action={likePost} />
-              <span>15</span>
+              <span>{post?.likes}</span>
             </ActionButton>
             <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <span>{post?.comments}</span>
+              <div>{post?.comments}</div>
             </ActionButton>
-            <ActionButton onClick={openEditModal}>
-              <img src={edit} alt='edit' />
-            </ActionButton>
-            <ActionButton onClick={() => deletePost(post!.id!)}>
-              <img src={remove} alt='remove' />
-            </ActionButton>
+            {user && user.id === post?.author?.id && (
+              <ActionButton onClick={openEditModal}>
+                <img src={edit} alt='edit' />
+              </ActionButton>
+            )}
+            {user && user.id === post?.author?.id && (
+              <ActionButton onClick={() => deletePost(post!.id!)}>
+                <img src={remove} alt='remove' />
+              </ActionButton>
+            )}
           </ActionsContainer>
         </PostCard>
         {isCommentsOpen && <Comments comments={dummyComments} />}
@@ -283,27 +324,59 @@ const Post = () => {
           onClose={closeEditModal}
           title='Edit Post'
         >
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              postService.updatePost(post!.id!, { title, content });
-              closeEditModal();
-            }}
-          >
+          <form onSubmit={handleSubmit(updatePost)}>
             <div>
               <label>Title:</label>
               <input
                 type='text'
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                {...register('title')}
+                defaultValue={post?.title}
+              />
+            </div>
+            <div>
+              <img
+                src={previewUrl}
+                alt='Image Preview'
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: '2px solid #ccc',
+                }}
+              />
+              <label>Image:</label>
+              <input
+                type='url'
+                {...register('imageUrl')}
+                defaultValue={post?.imageUrl}
               />
             </div>
             <div>
               <label>Content:</label>
               <textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
+                {...register('content')}
+                defaultValue={post?.content}
               ></textarea>
+            </div>
+            <div>
+              <label htmlFor='tags'>Tags:</label>
+              <div>
+                {post?.tags?.map((tag) => (
+                  <span key={tag}>
+                    {tag}{' '}
+                    <button type='button' onClick={() => handleRemoveTag(tag)}>
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+              <input
+                id='tags'
+                type='text'
+                placeholder='Add a tag and press Enter'
+                onKeyDown={handleAddTag}
+              />
             </div>
             <Button type='submit'>Save Changes</Button>
           </form>

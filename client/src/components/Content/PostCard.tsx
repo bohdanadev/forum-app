@@ -1,4 +1,6 @@
 import { FC } from 'react';
+import moment from 'moment';
+
 import { StyledLink } from '../Sidebar/Sidebar';
 import {
   PostWrap,
@@ -19,7 +21,7 @@ const PostCard: FC<IProps> = ({ post }) => {
       <PostWrap>
         <PostTitle>{post.title}</PostTitle>
         <PostInfo>
-          <div> 15 min ago • </div>
+          <div> {moment(post.createdAt).fromNow()} • </div>
         </PostInfo>
         <PostContent>
           <img src={post.imageUrl} alt='postImage' />

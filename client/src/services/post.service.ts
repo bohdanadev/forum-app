@@ -32,20 +32,20 @@ class PostService extends HttpService {
     );
   }
 
-  async createPost(data: { title: string; content: string }) {
-    return this.post(API_KEYS.POSTS, data, {}, true);
+  async createPost(data: Partial<IPost>) {
+    return this.post<IPost>(API_KEYS.POSTS, data, {}, true);
   }
 
-  async updatePost(postId: number, data: { title?: string; content?: string }) {
-    return this.put(`${API_KEYS.POSTS}/${postId}`, data, {}, true);
+  async updatePost(postId: number | string, data: Partial<IPost>) {
+    return this.put<IPost>(`${API_KEYS.POSTS}/${postId}`, data, {}, true);
   }
 
-  async likePost(postId: number) {
-    return this.post(`${API_KEYS.LIKE}/${postId}/like`, {}, {}, true);
+  async likePost(postId: number | string) {
+    return this.post<number>(`${API_KEYS.LIKE}/${postId}/like`, {}, {}, true);
   }
 
-  async deletePost(postId: number) {
-    return this.delete(`${API_KEYS.POSTS}/${postId}`, {}, true);
+  async deletePost(postId: number | string) {
+    return this.delete<void>(`${API_KEYS.POSTS}/${postId}`, {}, true);
   }
 }
 

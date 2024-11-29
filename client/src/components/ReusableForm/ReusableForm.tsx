@@ -1,11 +1,14 @@
-import { FC } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import styled from 'styled-components';
+import { ISignIn, ISignUp } from '../../interfaces/auth.interface';
+
+type OnSubmitHandler = SubmitHandler<ISignIn> | SubmitHandler<ISignUp>;
 
 interface ReusableFormProps {
   title: string;
-  fields: any;
-  onSubmit: SubmitHandler<{ [key: string]: unknown }[]>;
+  fields: { [key: string]: string }[];
+  onSubmit: OnSubmitHandler;
 }
 
 const FormContainer = styled.form`
@@ -62,8 +65,16 @@ const ReusableForm: FC<ReusableFormProps> = ({ title, fields, onSubmit }) => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
-  } = useForm<{ [key: string]: unknown }[]>();
+  } = useForm<any>();
+  const [previewUrl, setPreviewUrl] = useState<string>('');
+
+  const avatarUrl = watch('avatarUrl', '');
+
+  useEffect(() => {
+    setPreviewUrl(avatarUrl || '../../assets/avatar.png');
+  }, [avatarUrl]);
 
   return (
     <FormContainer onSubmit={handleSubmit(onSubmit)}>
@@ -80,6 +91,19 @@ const ReusableForm: FC<ReusableFormProps> = ({ title, fields, onSubmit }) => {
           />
           {errors[field.name] && (
             <ErrorMessage>{errors[field.name]?.message as string}</ErrorMessage>
+          )}
+          {field.name === 'avatarUrl' && (
+            <img
+              src={previewUrl}
+              alt='Avatar Preview'
+              style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                border: '2px solid #ccc',
+              }}
+            />
           )}
         </InputField>
       ))}

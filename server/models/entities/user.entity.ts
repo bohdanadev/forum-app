@@ -32,6 +32,7 @@ export class User {
   email: string;
 
   @Column({ type: 'varchar', nullable: true })
+  @Expose()
   avatarUrl: string;
 
   @CreateDateColumn()

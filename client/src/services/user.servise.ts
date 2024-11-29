@@ -8,20 +8,24 @@ class UserService extends HttpService {
   }
 
   async getList() {
-    return this.get<IUser[]>(API_KEYS.USERS, {}, true); //Paginated {..., IUser[]}
+    return this.get<IUser[]>(`${API_KEYS.USERS}/${API_KEYS.VERSION}`, {}, true); //Paginated {..., IUser[]}
   }
 
-  async getById(id: string) {
-    return this.get<IUser>(`${API_KEYS.USERS}/${id}`, {}, true);
+  async getById(id: string): Promise<IUser> {
+    return this.get<IUser>(
+      `${API_KEYS.USERS}/${API_KEYS.VERSION}/${id}`,
+      {},
+      true
+    );
   }
 
-  async updateById(data: IUser) {
-    const { id, ...user } = data;
-    await this.put<void>(`${API_KEYS.USERS}/${id}`, user, {}, true);
+  async updateProfile(data: Partial<IUser>): Promise<IUser> {
+    const response = await this.put<IUser>(`${API_KEYS.USERS}`, data, {}, true);
+    return response;
   }
 
-  async deleteAccount(id: string) {
-    await this.delete<void>(`${API_KEYS.USERS}/${id}`, {}, true);
+  async deleteAccount() {
+    await this.delete<void>(`${API_KEYS.USERS}`, {}, true);
   }
 }
 export const userService = new UserService();
