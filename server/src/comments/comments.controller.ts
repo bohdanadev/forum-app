@@ -11,9 +11,9 @@ import { CommentService } from './comments.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { User } from '../../models/entities/user.entity';
-import { CommentsResponseDto } from '../../models/dto/comment/comments.res.dto';
+import { CommentResponseDto } from '../../models/dto/comment/comments.res.dto';
 
-@Controller(':/postId/comments')
+@Controller('api/posts/:postId/comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
@@ -36,14 +36,14 @@ export class CommentController {
   @Get('v1.1')
   async getCommentsWithRepliesForPost(
     @Param('postId', ParseIntPipe) postId: number,
-  ): Promise<CommentsResponseDto[]> {
+  ): Promise<CommentResponseDto[]> {
     return this.commentService.getPostCommentsWithReplies(postId);
   }
 
   @Get('v1.2')
   async getCommentsWithRepliesForPostQuery(
     @Param('postId', ParseIntPipe) postId: number,
-  ): Promise<CommentsResponseDto[]> {
+  ): Promise<CommentResponseDto[]> {
     return this.commentService.getPostCommentsWithRepliesQuery(postId);
   }
 
@@ -59,13 +59,13 @@ export class CommentController {
     return this.commentService.getRepliesForComment(commentId);
   }
 
-  @Post()
+  @Post('like')
   public async likeComment(
     @CurrentUser() userData: User,
-    @Param('postId') postId: string,
+    @Param('postId', ParseIntPipe) postId: number,
     @Body('commentId') commentId: number,
   ): Promise<number> {
-    const result = await this.commentService.like(userData, +postId, commentId);
+    const result = await this.commentService.like(userData, postId, commentId);
     return result;
   }
 }

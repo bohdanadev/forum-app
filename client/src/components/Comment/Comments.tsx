@@ -1,4 +1,5 @@
 import { FC, useState } from 'react';
+
 import reply from '../../assets/reply.png';
 import user from '../../assets/user.png';
 import like_reply from '../../assets/like_reply.png';
@@ -74,14 +75,16 @@ const Comments: FC<IProps> = ({ postId }) => {
             <h4>{comment.author.username}</h4>
             <p>{comment.content}</p>
             <CommentActions>
-              <button onClick={() => likeComment(postId, comment.id)}>
+              <button
+                onClick={() => likeComment({ postId, commentId: comment.id })}
+              >
                 <img
                   src={like_reply}
                   alt='like'
                   style={{ width: '20px', height: '20px' }}
                 />
               </button>
-              <p>{comment.likes.length}</p>
+              <p>{comment.likes.length > 0 ? comment.likes.length : ''}</p>
 
               <button onClick={() => handleReply(comment.id)}>
                 <img src={reply} alt='Reply' />
@@ -91,7 +94,6 @@ const Comments: FC<IProps> = ({ postId }) => {
             {replyingTo === comment.id && (
               <ReplyForm>
                 <textarea
-                  value={newReply}
                   onChange={(e) => setNewReply(e.target.value)}
                   placeholder='Write your reply...'
                 />
@@ -109,14 +111,9 @@ const Comments: FC<IProps> = ({ postId }) => {
   return (
     <CommentsContainer>
       <h3>Comments</h3>
-      {comments && comments.length > 0 ? (
-        renderComments(comments)
-      ) : (
-        <p>No comments yet.</p>
-      )}
+      {comments ? renderComments(comments) : <p>No comments yet.</p>}
       <ReplyForm>
         <textarea
-          value={newReply}
           onChange={(e) => setNewReply(e.target.value)}
           placeholder='Write your comment...'
         />

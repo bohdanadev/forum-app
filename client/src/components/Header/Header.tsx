@@ -7,7 +7,6 @@ import Modal from '../Modal/Modal';
 import Search from '../Search/Search';
 import useMutateProfile from '../../hooks/useMutateProfile';
 import useCreatePost from '../../hooks/useCreatePost';
-import useFetchUser from '../../hooks/useFetchUser';
 import { IPost } from '../../interfaces/post.interface';
 import { authService } from '../../services/auth.service';
 import {
@@ -35,10 +34,9 @@ const Header = () => {
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
 
-  const currentUser = authService.isAuthenticated();
-  const { data: user } = useFetchUser(currentUser.id);
+  const user = authService.isAuthenticated();
 
-  const { mutate: deleteAccount, reset: resetForm } = useMutateProfile();
+  const { mutate: deleteAccount } = useMutateProfile();
   const { mutate: createPost, error, reset } = useCreatePost();
 
   if (error && axios.isAxiosError(error)) {
@@ -53,8 +51,9 @@ const Header = () => {
   const handleCreatePost = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     createPost(post);
-    resetForm();
+    reset();
     closeModal();
+    setPost({ title: '', imageUrl: '', content: '', tags: [] });
   };
 
   return (
@@ -90,13 +89,12 @@ const Header = () => {
               <label>Title:</label>
               <input
                 type='text'
-                value={post.title}
                 onChange={(e) => setPost({ ...post, title: e.target.value })}
               />
             </div>
             <div>
               <img
-                src={post.imageUrl}
+                src={''}
                 alt='Image Preview'
                 style={{
                   width: '100px',
@@ -109,14 +107,12 @@ const Header = () => {
               <label>Image:</label>
               <input
                 type='url'
-                value={post.imageUrl}
                 onChange={(e) => setPost({ ...post, imageUrl: e.target.value })}
               />
             </div>
             <div>
               <label>Content:</label>
               <textarea
-                value={post.content}
                 onChange={(e) => setPost({ ...post, content: e.target.value })}
               ></textarea>
             </div>
@@ -124,8 +120,12 @@ const Header = () => {
               <label>Tags:</label>
               <input
                 type='text'
-                value={post.tags}
-                onChange={(e) => setPost({ ...post, tags: [e.target.value] })}
+                onChange={(e) =>
+                  setPost({
+                    ...post,
+                    tags: e.target.value.split(/[\s,]+/).filter(Boolean),
+                  })
+                }
               />
             </div>
             <Button type='submit'>Save Changes</Button>

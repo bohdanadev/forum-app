@@ -7,7 +7,6 @@ const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  max-height: 40vh;
   overflow: scroll;
 `;
 

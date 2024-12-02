@@ -42,7 +42,12 @@ class PostService extends HttpService {
   }
 
   async likePost(postId: string | number) {
-    return this.post<number>(`${API_KEYS.LIKE}/${postId}/like`, {}, {}, true);
+    return this.post<number>(
+      `${API_KEYS.POSTS}/${postId}/${API_KEYS.LIKE}`,
+      {},
+      {},
+      true
+    );
   }
 
   async deletePost(postId: string | number) {
@@ -60,18 +65,19 @@ class PostService extends HttpService {
   async createComment(
     postId: string | number,
     content: string,
-    commentId?: string | number
+    parentCommentId?: string | number
   ) {
-    return commentId
+    console.log(postId, content, parentCommentId);
+    return parentCommentId
       ? this.post<IComment>(
           `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
-          { content, commentId },
+          { content, parentCommentId },
           {},
           true
         )
       : this.post<IComment>(
           `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
-          content,
+          { content },
           {},
           true
         );
@@ -79,8 +85,8 @@ class PostService extends HttpService {
 
   async likeComment(postId: string | number, commentId: string | number) {
     return this.post<number>(
-      `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
-      commentId,
+      `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}/${API_KEYS.LIKE}`,
+      { commentId },
       {},
       true
     );

@@ -74,12 +74,20 @@ export const ActionButton = styled.div`
   border: none;
   background: none;
   padding: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
   box-sizing: border-box;
   transition: 0.2s;
 
   img {
     width: 28px;
     height: 28px;
+  }
+
+  div {
   }
   &:hover {
     transform: scale(0.8) rotateY(360deg);
@@ -149,10 +157,23 @@ const TagsContainer = styled.div`
   }
 `;
 
-const PostContent = styled.p`
-  font-size: 1.2em;
-  line-height: 1.6;
-  color: #555;
+const PostContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+
+  p {
+    font-size: 1.2em;
+    line-height: 1.6;
+    color: #555;
+  }
+
+  img {
+    width: 400px;
+    height: 400px;
+  }
 `;
 
 const AuthorCard = styled.div`
@@ -205,7 +226,6 @@ const Post = () => {
   const { mutate: mutatePost } = useMutatePost();
 
   const user = authService.isAuthenticated();
-  console.log('POST COMPONENT', user);
 
   const imageUrl = watch('imageUrl', '');
 
@@ -279,11 +299,11 @@ const Post = () => {
           <ActionsContainer>
             <ActionButton>
               <LikeButton action={likePost} />
-              <span>{post?.likes}</span>
+              <div>{post?.likes?.length}</div>
             </ActionButton>
             <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <div>{post?.comments}</div>
+              <div>{post?.comments?.length}</div>
             </ActionButton>
             {user && user.id === post?.author?.id && (
               <ActionButton onClick={openEditModal}>

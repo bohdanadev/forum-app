@@ -76,6 +76,23 @@ export default class HttpService {
     return response.data;
   }
 
+  async patch<T>(
+    url: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    data: any,
+    config?: AxiosRequestConfig,
+    withAuth = false
+  ): Promise<T> {
+    const headers = withAuth
+      ? { ...config?.headers, ...this.getAuthHeaders() }
+      : config?.headers;
+    const response = await this.fetchingService.patch<T>(url, data, {
+      ...config,
+      headers,
+    });
+    return response.data;
+  }
+
   async delete<T>(
     url: string,
     config?: AxiosRequestConfig,

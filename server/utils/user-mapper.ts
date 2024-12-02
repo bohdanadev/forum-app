@@ -9,6 +9,7 @@ export class UserMapper {
       email: data.email,
       avatarUrl: data.avatarUrl,
       createdAt: data.createdAt,
+      notifications: data.notifications,
     };
   }
 

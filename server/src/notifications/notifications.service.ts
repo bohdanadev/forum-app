@@ -6,6 +6,7 @@ import { User } from '../../models/entities/user.entity';
 import { Post } from '../../models/entities/post.entity';
 import { Comment } from '../../models/entities/comment.entity';
 import { UserResDto } from '../../models/dto/user.res.dto';
+import { NotificationsListQueryDto } from '../../models/dto/notification/notifications-query.dto';
 
 @Injectable()
 export class NotificationService {
@@ -34,8 +35,24 @@ export class NotificationService {
     return this.notificationRepository.save(notification);
   }
 
-  async getNotificationsForUser(userId: string) {
-    return this.notificationRepository.findNotificationsByRecipient(userId);
+  async getNotificationsForUser(
+    userId: string,
+    query: NotificationsListQueryDto,
+  ) {
+    return this.notificationRepository.findNotificationsByRecipient(
+      userId,
+      query,
+    );
+  }
+
+  async getNotificationsForUserQuery(
+    userId: string,
+    query: NotificationsListQueryDto,
+  ) {
+    return this.notificationRepository.findNotificationsByRecipientQuery(
+      userId,
+      query,
+    );
   }
 
   async markAsRead(notificationId: number) {

@@ -8,6 +8,7 @@ import Profile from './pages/Profile';
 import Post from './pages/Post';
 import ErrorPage from './pages/ErrorPage';
 import FeedLayout from './layouts/FeedLayout';
+import NotificationsPage from './pages/NotificationsPage';
 
 const router = createBrowserRouter(
   [
@@ -26,6 +27,7 @@ const router = createBrowserRouter(
           children: [
             { index: true, element: <Navigate to={'posts'} /> },
             { path: 'posts', element: <HomePage /> },
+            { path: 'notifications', element: <NotificationsPage /> },
             { path: 'users/:id', element: <Profile /> },
             { path: 'posts/:id', element: <Post /> },
           ],

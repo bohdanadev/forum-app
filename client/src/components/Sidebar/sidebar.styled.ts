@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 export const SidebarContainer = styled.div`
   width: 200px;
-  max-height: 40vh;
   padding: 20px;
   background-color: #fff;
   border-radius: 10px;

@@ -52,6 +52,7 @@ export class User {
   @OneToMany(() => Like, (like) => like.author, { cascade: true })
   likes: Like[];
 
+  @Expose()
   @OneToMany(() => Notification, (notification) => notification.recipient, {
     cascade: true,
   })

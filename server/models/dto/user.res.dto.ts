@@ -1,6 +1,13 @@
 import { PickType } from '@nestjs/mapped-types';
 import { SignUpReqDto } from './signUp.req.dto';
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsDate,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { Notification } from '../entities/notification.entity';
 
 export class UserResDto extends PickType(SignUpReqDto, [
   'username',
@@ -10,7 +17,10 @@ export class UserResDto extends PickType(SignUpReqDto, [
   @IsNotEmpty()
   @IsString()
   id: string;
-
   @IsDate()
   createdAt: Date;
+
+  @IsOptional()
+  @IsArray()
+  notifications: Notification[];
 }

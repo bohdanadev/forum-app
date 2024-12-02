@@ -127,10 +127,18 @@ export class UsersService {
     // console.log(existingUser.toJSON());
 
     // Postgres
-    const foundUser = await this.userRepository.findOneBy({ id });
+    const foundUser = await this.userRepository.findOne({
+      where: { id },
+      relations: ['notifications'],
+    });
     if (!foundUser) {
       throw new NotFoundException(`User not found`);
     }
+    // const unreadNotificationsCount = foundUser.notifications.filter(
+    //   (n) => !n.isRead,
+    // ).length;
+
+    console.log(foundUser);
 
     return plainToInstance(User, foundUser, { excludeExtraneousValues: true });
   }

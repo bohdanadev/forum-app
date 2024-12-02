@@ -8,11 +8,18 @@ import {
   SidebarContainer,
   SidebarItem,
 } from './sidebar.styled';
+import useFetchUser from '../../hooks/useFetchUser';
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
   const currentUser = authService.isAuthenticated();
+  const { data: user } = useFetchUser(currentUser.id);
+
+  const unreadNotificationsCount = user?.notifications?.filter(
+    (n) => !n.isRead
+  ).length;
+
   const logout = async () => {
     authService.signOut();
     navigate('/signin');
@@ -21,7 +28,7 @@ const Sidebar = () => {
     <SidebarContainer>
       <NotificationsContainer onClick={() => navigate('notifications')}>
         <SidebarItem>Notifications</SidebarItem>
-        <Notification>74</Notification>
+        <Notification>{unreadNotificationsCount || ''}</Notification>
       </NotificationsContainer>
       <Link to={`${API_KEYS.USERS}/${currentUser.id}`}>
         <SidebarItem>Profile</SidebarItem>

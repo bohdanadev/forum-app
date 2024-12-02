@@ -3,10 +3,10 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
   Delete,
   Query,
+  Put,
 } from '@nestjs/common';
 
 import { PostsService } from './posts.service';
@@ -98,7 +98,7 @@ export class PostsController {
     return await this.postsService.getByIdQuery(userData, +postId);
   }
 
-  @Patch(':postId')
+  @Put(':postId')
   public async update(
     @CurrentUser() userData: IUser,
     @Param('postId') postId: string,

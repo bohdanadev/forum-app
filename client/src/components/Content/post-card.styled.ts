@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const PostWrap = styled.div`
+  max-height: 400px;
   background-color: #fff;
   padding: 15px;
   border-radius: 10px;
@@ -25,6 +26,10 @@ export const PostContent = styled.div`
     font-size: 0.8em;
     line-height: 1.6;
     color: #555;
+    max-height: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: justify;
   }
 
   img {

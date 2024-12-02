@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 import { IPost } from '../interfaces/post.interface';
 import { postService } from '../services/post.service';
@@ -6,6 +7,7 @@ import { QUERY_KEYS } from '../constants/app-keys';
 
 const useMutatePost = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   return useMutation<
     IPost | void,
@@ -33,6 +35,7 @@ const useMutatePost = () => {
       } else {
         queryClient.setQueryData([QUERY_KEYS.POST], null);
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
+        navigate('/posts');
       }
     },
   });

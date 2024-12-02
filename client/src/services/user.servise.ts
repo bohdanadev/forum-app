@@ -1,4 +1,9 @@
 import { API_KEYS } from '../constants/app-keys';
+import {
+  NotificationsListQuery,
+  NotificationsListRes,
+} from '../hooks/useFetchNotifications';
+import { INotification } from '../interfaces/notification.interface';
 import { IUser } from '../interfaces/user.interface';
 import HttpService from './http.service';
 
@@ -8,7 +13,7 @@ class UserService extends HttpService {
   }
 
   async getList() {
-    return this.get<IUser[]>(`${API_KEYS.USERS}/${API_KEYS.VERSION}`, {}, true); //Paginated {..., IUser[]}
+    return this.get<IUser[]>(`${API_KEYS.USERS}/${API_KEYS.VERSION}`, {}, true);
   }
 
   async getById(id: string): Promise<IUser> {
@@ -26,6 +31,25 @@ class UserService extends HttpService {
 
   async deleteAccount() {
     await this.delete<void>(`${API_KEYS.USERS}`, {}, true);
+  }
+
+  async getNotifications({ params }: { params: NotificationsListQuery }) {
+    return await this.get<NotificationsListRes>(
+      `${API_KEYS.NOTIFICATIONS}/${API_KEYS.VERSION}?${new URLSearchParams(
+        params as any
+      )}`,
+      {},
+      true
+    );
+  }
+
+  async readNotification(id: number | string) {
+    return await this.patch<void>(
+      `${API_KEYS.NOTIFICATIONS}/${id}/read`,
+      {},
+      {},
+      true
+    );
   }
 }
 export const userService = new UserService();

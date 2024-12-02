@@ -23,7 +23,7 @@ const LikeWrapper = styled.div`
   display: inline-block;
 `;
 
-const FlyingHeart = styled.img<{ isFlying: boolean }>`
+const FlyingHeart = styled.img<{ $isFlying: boolean }>`
   position: absolute;
   width: 28px;
   height: 28px;
@@ -31,8 +31,8 @@ const FlyingHeart = styled.img<{ isFlying: boolean }>`
   left: 50%;
   transform: translate(-50%, -50%);
   opacity: 0;
-  ${({ isFlying }) =>
-    isFlying &&
+  ${({ $isFlying }) =>
+    $isFlying &&
     css`
       animation: ${flyToCenter} 1.5s ease-in-out forwards;
     `}
@@ -47,8 +47,8 @@ const LikeButton: FC<IProps> = ({ action }) => {
   const [isFlying, setIsFlying] = useState(false);
 
   const handleLikeClick = async () => {
-    setIsFlying(true);
     await action();
+    setIsFlying(true);
     setTimeout(() => {
       setIsFlying(false);
     }, 1000);
@@ -58,7 +58,7 @@ const LikeButton: FC<IProps> = ({ action }) => {
     <LikeWrapper onClick={handleLikeClick}>
       <img src={like} alt='Like' />
 
-      <FlyingHeart src={like} alt='Flying Heart' isFlying={isFlying} />
+      <FlyingHeart src={like} alt='Flying Heart' $isFlying={isFlying} />
     </LikeWrapper>
   );
 };

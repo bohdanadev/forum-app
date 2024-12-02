@@ -10,9 +10,9 @@ interface LikeInput {
 
 const mutateLike = async (input: LikeInput): Promise<number> => {
   const { postId, commentId } = input;
-  return !commentId
-    ? await postService.likePost(postId)
-    : await postService.likeComment(postId, commentId);
+  return commentId
+    ? await postService.likeComment(postId, commentId)
+    : await postService.likePost(postId);
 };
 
 export const useMutateLike = () => {
@@ -20,27 +20,27 @@ export const useMutateLike = () => {
 
   return useMutation<number, unknown, LikeInput>({
     mutationFn: mutateLike,
-    onMutate: async (variables) => {
-      const { postId, commentId } = variables;
 
-      if (commentId) {
-        await queryClient.cancelQueries({
-          queryKey: [QUERY_KEYS.LIKES, commentId],
-        });
-      } else {
-        await queryClient.cancelQueries({
-          queryKey: [QUERY_KEYS.LIKES, postId],
+    onSuccess: (data, variables) => {
+      //   queryClient.setQueryData<number>(
+      //     [
+      //       QUERY_KEYS.LIKES,
+      //       variables.commentId ? variables.commentId : variables.postId,
+      //     ],
+      //     data
+      //   );
+
+      if (!variables.commentId && variables.postId) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.POST, variables.postId],
         });
       }
-    },
-    onSuccess: (data, variables) => {
-      queryClient.setQueryData<number>(
-        [
-          QUERY_KEYS.LIKES,
-          variables.commentId ? variables.commentId : variables.postId,
-        ],
-        data
-      );
+
+      if (variables.commentId) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.COMMENTS, variables.postId],
+        });
+      }
     },
   });
 };

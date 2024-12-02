@@ -1,9 +1,8 @@
-import { Expose, Type } from 'class-transformer';
+import { Expose, Transform, Type } from 'class-transformer';
 
-import { UserResDto } from '../user.res.dto';
 import { Like } from '../../entities/like.entity';
 
-export class CommentsResponseDto {
+export class CommentResponseDto {
   @Expose()
   id: number;
 
@@ -11,14 +10,27 @@ export class CommentsResponseDto {
   content: string;
 
   @Expose()
-  @Type(() => UserResDto)
-  author: Partial<UserResDto>;
+  createdAt: Date;
+
+  @Expose()
+  updatedAt: Date;
+
+  @Expose()
+  @Transform(({ value }) => ({
+    id: value.id,
+    username: value.username,
+    avatarUrl: value.avatarUrl,
+  }))
+  author: { id: string; username: string; avatarUrl: string };
 
   @Expose()
   @Type(() => Like)
   likes: Like[];
 
   @Expose()
-  @Type(() => CommentsResponseDto)
-  replies: CommentsResponseDto[];
+  parentCommentId?: number;
+
+  @Expose()
+  @Type(() => CommentResponseDto)
+  replies: CommentResponseDto[];
 }

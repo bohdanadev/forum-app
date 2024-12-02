@@ -12,6 +12,8 @@ import { User } from '../../models/entities/user.entity';
 import { Comment } from '../../models/entities/comment.entity';
 import { LikeRepository } from '../likes/like.repository';
 import { NotificationService } from '../notifications/notifications.service';
+import { CommentResponseDto } from '../../models/dto/comment/comments.res.dto';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class CommentService {
@@ -29,16 +31,20 @@ export class CommentService {
     author: User,
     content: string,
     parentCommentId?: number,
-  ): Promise<Comment> {
-    const post = await this.postRepository.findOneBy({ id: postId });
+  ): Promise<CommentResponseDto> {
+    const post = await this.postRepository.findOne({
+      where: { id: postId },
+      relations: ['author'],
+    });
     if (!post) {
       throw new NotFoundException('Post not found');
     }
 
     let parentComment: Comment | null = null;
     if (parentCommentId) {
-      parentComment = await this.commentRepository.findOneBy({
-        id: parentCommentId,
+      parentComment = await this.commentRepository.findOne({
+        where: { id: parentCommentId },
+        relations: ['author'],
       });
       if (!parentComment) {
         throw new NotFoundException('Parent comment not found');
@@ -72,7 +78,9 @@ export class CommentService {
         parentComment,
       );
     }
-    return newComment;
+    return plainToInstance(CommentResponseDto, newComment, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async getPostCommentsWithReplies(postId: number) {
@@ -96,16 +104,20 @@ export class CommentService {
     postId: number,
     commentId: number,
   ): Promise<number> {
-    const post = await this.postRepository.findOne({
-      where: { id: postId },
-      relations: ['comment'],
-    });
-
+    const post = await this.postRepository.findOne({ where: { id: postId } });
     if (!post) {
       throw new NotFoundException('Post not found');
     }
 
-    if (post.comments['commentId'].author.id === userData.id) {
+    const comment = await this.commentRepository.findOne({
+      where: { id: commentId, post: { id: postId } },
+      relations: ['author'],
+    });
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+
+    if (comment.author.id === userData.id) {
       throw new ConflictException('You cannot like your own comment');
     }
 
@@ -117,16 +129,17 @@ export class CommentService {
     }
 
     const newLike = this.likeRepository.create({
-      comment: { id: commentId },
-      author: { id: userData.id },
+      comment,
+      author: userData,
+      post: null,
     });
     await this.likeRepository.save(newLike);
 
-    if (post.comments['commentId'].author.id !== userData.id) {
+    if (comment.author.id !== userData.id) {
       await this.notificationService.createNotification(
-        post.comments['commentId'].author,
+        comment.author,
         userData,
-        `${userData.username} liked your post: "${post.title}"`,
+        `${userData.username} liked your comment: "${comment.content}"`,
         post,
       );
     }

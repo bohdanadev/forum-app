@@ -158,7 +158,11 @@ export class PostRepository extends Repository<Post> {
         'comments.postId = post.id',
       )
       .leftJoin('comments.author', 'commentAuthor')
-      .addSelect(['commentAuthor.id', 'commentAuthor.username'])
+      .addSelect([
+        'commentAuthor.id',
+        'commentAuthor.username',
+        'commentAuthor.avatarUrl',
+      ])
       .where('post.id = :postId', { postId });
 
     return await qb.getOneOrFail();
