@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+
 import { userService } from '../services/user.servise';
 import { QUERY_KEYS } from '../constants/app-keys';
 import { IUser } from '../interfaces/user.interface';
 import { authService } from '../services/auth.service';
-import { useNavigate } from 'react-router-dom';
 
 const useMutateProfile = () => {
   const queryClient = useQueryClient();
@@ -17,6 +18,8 @@ const useMutateProfile = () => {
       if (data) {
         queryClient.setQueryData([QUERY_KEYS.USER], data);
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
+        localStorage.removeItem('user');
+        localStorage.setItem('user', JSON.stringify(data));
       } else {
         queryClient.setQueryData([QUERY_KEYS.USER], null);
         authService.signOut();

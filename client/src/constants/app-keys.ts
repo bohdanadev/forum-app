@@ -4,6 +4,7 @@ export const API_KEYS = {
   USERS: '/users',
   POSTS: '/posts',
   LIKE: '/posts',
+  COMMENTS: 'comments',
   VERSION: 'v1.1',
 };
 
@@ -12,4 +13,6 @@ export const QUERY_KEYS = {
   POSTS: 'posts',
   POST: 'post',
   USER: 'user',
+  COMMENTS: 'comments',
+  LIKES: 'likes',
 };

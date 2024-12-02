@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+
 import { postService } from '../services/post.service';
 import { QUERY_KEYS } from '../constants/app-keys';
 import { IPost } from '../interfaces/post.interface';

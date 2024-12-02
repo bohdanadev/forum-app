@@ -11,7 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   imports: [
     PostgresModule,
-    MongooseModule.forFeature([{ name: 'User', schema: userSchema }]),
+    // MongooseModule.forFeature([{ name: 'User', schema: userSchema }]),
     TypeOrmModule.forFeature([User]),
   ],
   controllers: [UsersController],

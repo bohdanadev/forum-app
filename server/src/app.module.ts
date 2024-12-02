@@ -13,6 +13,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { myDataSource } from '../ormconfig';
 import { AuthService } from 'auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
+import { CommentsModule } from './comments/comments.module';
+import { NotificationsModule } from 'notifications/notifications.module';
 
 @Module({
   imports: [
@@ -20,19 +22,21 @@ import { JwtModule } from '@nestjs/jwt';
       load: [configuration],
       isGlobal: true,
     }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService<Config>) => ({
-        uri: configService.get<MongoConfig>('mongo').mongoUrl,
-      }),
-      inject: [ConfigService],
-    }),
+    // MongooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService<Config>) => ({
+    //     uri: configService.get<MongoConfig>('mongo').mongoUrl,
+    //   }),
+    //   inject: [ConfigService],
+    // }),
     TypeOrmModule.forRoot(myDataSource.options),
     UsersModule,
     AuthModule,
     PostsModule,
     PostgresModule,
     JwtModule,
+    CommentsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, AuthService],

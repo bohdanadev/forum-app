@@ -19,6 +19,7 @@ import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
 import { UserMapper } from '../../utils/user-mapper';
 import { IPost } from '../../models/interfaces/post.interface';
+import { User } from '../../models/entities/user.entity';
 
 @Controller('api/posts')
 export class PostsController {
@@ -116,7 +117,7 @@ export class PostsController {
 
   @Post(':postId/like')
   public async likePost(
-    @CurrentUser() userData: IUser,
+    @CurrentUser() userData: User,
     @Param('postId') postId: string,
   ): Promise<number> {
     const result = await this.postsService.like(userData, +postId);

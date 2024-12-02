@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import moment from 'moment';
 
-import { StyledLink } from '../Sidebar/Sidebar';
 import {
   PostWrap,
   PostInfo,
@@ -10,6 +9,7 @@ import {
   PostContent,
 } from './post-card.styled';
 import { IPost } from '../../interfaces/post.interface';
+import { StyledLink } from '../Sidebar/sidebar.styled';
 
 interface IProps {
   post: IPost;

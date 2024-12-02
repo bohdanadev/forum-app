@@ -11,6 +11,7 @@ import {
 import { Like } from './like.entity';
 import { User } from './user.entity';
 import { Post } from './post.entity';
+import { UserResDto } from '../dto/user.res.dto';
 
 @Entity()
 export class Comment {
@@ -22,7 +23,7 @@ export class Comment {
 
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'authorId' })
-  author: User;
+  author: Partial<UserResDto>;
 
   @ManyToOne(() => Post, (post) => post.comments, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })

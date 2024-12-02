@@ -1,5 +1,6 @@
 import { FC, useState } from 'react';
 import styled, { css, keyframes } from 'styled-components';
+
 import like from '../../assets/like.png';
 
 const flyToCenter = keyframes`

@@ -11,13 +11,17 @@ import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { Post } from '../../models/entities/post.entity';
 import { IUser } from '../../models/interfaces/user.interface';
 import { PostRepository } from './post.repository';
-import { LikeRepository } from './like.repository';
+import { LikeRepository } from '../likes/like.repository';
+import { NotificationService } from '../notifications/notifications.service';
+import { User } from '../../models/entities/user.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
+    private readonly notificationService: NotificationService,
     private readonly postRepository: PostRepository,
     private readonly likeRepository: LikeRepository,
+
     @InjectEntityManager()
     private readonly entityManager: EntityManager,
   ) {}
@@ -68,7 +72,7 @@ export class PostsService {
     return await this.postRepository.deletePost(user.id, postId);
   }
 
-  public async like(userData: IUser, postId: number): Promise<number> {
+  public async like(userData: User, postId: number): Promise<number> {
     const post = await this.postRepository.findOne({
       where: { id: postId },
       relations: ['author'],
@@ -94,6 +98,15 @@ export class PostsService {
       author: { id: userData.id },
     });
     await this.likeRepository.save(newLike);
+
+    if (post.author.id !== userData.id) {
+      await this.notificationService.createNotification(
+        post.author,
+        userData,
+        `${userData.username} liked your post: "${post.title}"`,
+        post,
+      );
+    }
 
     return await this.likeRepository.getPostLikes(postId);
   }

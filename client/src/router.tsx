@@ -22,6 +22,7 @@ const router = createBrowserRouter(
         {
           path: '',
           element: <FeedLayout />,
+          errorElement: <ErrorPage />,
           children: [
             { index: true, element: <Navigate to={'posts'} /> },
             { path: 'posts', element: <HomePage /> },

@@ -1,17 +1,8 @@
 import { FC } from 'react';
-import styled from 'styled-components';
 import InfiniteScroll from 'react-infinite-scroll-component';
+
 import { useFetchPosts } from '../../hooks/useFetchPosts';
 import PostCard from './PostCard';
-
-export const MainContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-height: 40vh;
-  overflow: scroll;
-`;
 
 const Content: FC = () => {
   const { data, fetchNextPage, hasNextPage, isLoading, isError } =

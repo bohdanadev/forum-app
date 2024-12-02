@@ -1,7 +1,8 @@
-import { API_KEYS } from '../constants/app-keys';
+import { API_KEYS } from './../constants/app-keys';
 import { PostsListQuery, PostsListRes } from '../hooks/useFetchPosts';
 import { IPost } from '../interfaces/post.interface';
 import HttpService from './http.service';
+import { IComment } from '../interfaces/comment.interface';
 
 export interface PaginatedResponse<T> {
   total: number;
@@ -40,12 +41,49 @@ class PostService extends HttpService {
     return this.put<IPost>(`${API_KEYS.POSTS}/${postId}`, data, {}, true);
   }
 
-  async likePost(postId: number | string) {
+  async likePost(postId: string | number) {
     return this.post<number>(`${API_KEYS.LIKE}/${postId}/like`, {}, {}, true);
   }
 
-  async deletePost(postId: number | string) {
+  async deletePost(postId: string | number) {
     return this.delete<void>(`${API_KEYS.POSTS}/${postId}`, {}, true);
+  }
+
+  async getCommentsForPost(postId: string | number) {
+    return this.get<IComment[]>(
+      `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}/${API_KEYS.VERSION}`,
+      {},
+      true
+    );
+  }
+
+  async createComment(
+    postId: string | number,
+    content: string,
+    commentId?: string | number
+  ) {
+    return commentId
+      ? this.post<IComment>(
+          `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
+          { content, commentId },
+          {},
+          true
+        )
+      : this.post<IComment>(
+          `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
+          content,
+          {},
+          true
+        );
+  }
+
+  async likeComment(postId: string | number, commentId: string | number) {
+    return this.post<number>(
+      `${API_KEYS.POSTS}/${postId}/${API_KEYS.COMMENTS}`,
+      commentId,
+      {},
+      true
+    );
   }
 }
 

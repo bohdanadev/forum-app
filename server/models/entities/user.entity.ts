@@ -11,6 +11,7 @@ import {
 import { Post } from './post.entity';
 import { Comment } from './comment.entity';
 import { Like } from './like.entity';
+import { Notification } from './notification.entity';
 
 @Entity('users')
 @Index(['username', 'email'], { unique: true })
@@ -50,4 +51,9 @@ export class User {
 
   @OneToMany(() => Like, (like) => like.author, { cascade: true })
   likes: Like[];
+
+  @OneToMany(() => Notification, (notification) => notification.recipient, {
+    cascade: true,
+  })
+  notifications: Notification[];
 }

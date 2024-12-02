@@ -13,7 +13,7 @@ import { IUser } from '../../models/interfaces/user.interface';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { UserMapper } from '../../utils/user-mapper';
 import { UserResDto } from '../../models/dto/user.res.dto';
-import { JwtAuthGuard } from 'auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('api/users')
 export class UsersController {

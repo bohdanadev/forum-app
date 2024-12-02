@@ -1,81 +1,65 @@
 import { useEffect, useState } from 'react';
+import { SubmitHandler, useForm } from 'react-hook-form';
+import { useParams } from 'react-router-dom';
+import moment from 'moment';
 import styled from 'styled-components';
-import Modal from '../components/Modal/Modal';
-import { Button } from '../components/Button/Button';
+
 import comment from '../assets/comment.png';
 import edit from '../assets/edit.png';
 import remove from '../assets/remove.png';
+import Modal from '../components/Modal/Modal';
+import { Button } from '../components/Button/Button';
 import LikeButton from '../components/Button/LikeButton';
 import Comments from '../components/Comment/Comments';
-import { postService } from '../services/post.service';
-import { useParams } from 'react-router-dom';
 import { useFetchPost } from '../hooks/useFetchPost';
-import moment from 'moment';
-import { authService } from '../services/auth.service';
 import useMutatePost from '../hooks/useMutatePost';
+import { useMutateLike } from '../hooks/useLikeMutation';
 import { IPost } from '../interfaces/post.interface';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { authService } from '../services/auth.service';
 
-const dummyComments = [
-  {
-    id: 1,
-    author: 'Alice',
-    content: 'This is a great post!',
-    replies: [
-      {
-        id: 2,
-        author: 'Bob',
-        content: 'I agree!',
-        replies: [
-          {
-            id: 3,
-            author: 'Charlie',
-            content: 'Same here!',
-          },
-          {
-            id: 3,
-            author: 'Charlie',
-            content: 'Same here!',
-          },
-          {
-            id: 3,
-            author: 'Charlie',
-            content: 'Same here!',
-          },
-        ],
-      },
-      {
-        id: 2,
-        author: 'Bob',
-        content: 'I agree!',
-        replies: [
-          {
-            id: 3,
-            author: 'Charlie',
-            content: 'Same here!',
-          },
-        ],
-      },
-    ],
-  },
-];
-
-interface IComment {
-  id: number;
-  author: string;
-  content: string;
-  replies?: Comment[];
-}
-
-interface IPostDetails {
-  id: number;
-  author: string;
-  title: string;
-  tags: string[];
-  content: string;
-  likes: number;
-  comments: Comment[];
-}
+// const dummyComments = [
+//   {
+//     id: 1,
+//     author: 'Alice',
+//     content: 'This is a great post!',
+//     replies: [
+//       {
+//         id: 2,
+//         author: 'Bob',
+//         content: 'I agree!',
+//         replies: [
+//           {
+//             id: 3,
+//             author: 'Charlie',
+//             content: 'Same here!',
+//           },
+//           {
+//             id: 3,
+//             author: 'Charlie',
+//             content: 'Same here!',
+//           },
+//           {
+//             id: 3,
+//             author: 'Charlie',
+//             content: 'Same here!',
+//           },
+//         ],
+//       },
+//       {
+//         id: 2,
+//         author: 'Bob',
+//         content: 'I agree!',
+//         replies: [
+//           {
+//             id: 3,
+//             author: 'Charlie',
+//             content: 'Same here!',
+//           },
+//         ],
+//       },
+//     ],
+//   },
+// ];
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -210,8 +194,6 @@ const Post = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
   const { data: post, isLoading, error } = useFetchPost(id!);
-  // const [title, setTitle] = useState(post?.title || '');
-  // const [content, setContent] = useState(post?.content || '');
   const [previewUrl, setPreviewUrl] = useState(post?.imageUrl || '');
   const [tags, setTags] = useState(post?.tags ?? []);
   const { register, handleSubmit, setValue, watch } = useForm<Partial<IPost>>();
@@ -231,18 +213,27 @@ const Post = () => {
     setPreviewUrl(imageUrl || '../../assets/avatar.png');
   }, [imageUrl]);
 
-  const updatePost: SubmitHandler<Partial<IPost>> = (post) => {
-    mutatePost({ id, post });
-    closeEditModal();
-  };
-
-  const likePost = async () => {
-    if (post) {
-      await postService.likePost(post.id!);
+  const updatePost: SubmitHandler<Partial<IPost>> = ({
+    title,
+    imageUrl,
+    content,
+    tags,
+  }) => {
+    if (id) {
+      mutatePost({ id, data: { title, imageUrl, content, tags } });
+      closeEditModal();
     }
   };
 
-  const deletePost = (id: number) => {
+  const { mutate: like } = useMutateLike();
+
+  const likePost = async () => {
+    if (post) {
+      like({ postId: post!.id! });
+    }
+  };
+
+  const deletePost = (id: number | string) => {
     mutatePost({ id });
   };
 
@@ -306,7 +297,7 @@ const Post = () => {
             )}
           </ActionsContainer>
         </PostCard>
-        {isCommentsOpen && <Comments comments={dummyComments} />}
+        {isCommentsOpen && <Comments postId={post!.id!} />}
       </MainContent>
 
       {/* Author Info Card */}

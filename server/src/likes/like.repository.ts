@@ -15,4 +15,12 @@ export class LikeRepository extends Repository<Like> {
 
     return likesCount;
   }
+
+  public async getCommentLikes(commentId: number): Promise<number> {
+    const likesCount = await this.createQueryBuilder('like')
+      .where('like.commentId = :commentId', { commentId })
+      .getCount();
+
+    return likesCount;
+  }
 }

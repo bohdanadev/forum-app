@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { IPost } from '../interfaces/post.interface';
 import { postService } from '../services/post.service';
 import { QUERY_KEYS } from '../constants/app-keys';
@@ -18,11 +19,7 @@ const useMutatePost = () => {
     onSuccess: (data) => {
       if (data) {
         queryClient.setQueryData<IPost>([QUERY_KEYS.POST], data!);
-        // queryClient.setQueryData<IPost[]>([QUERY_KEYS.POSTS], (oldPosts) =>
-        //   oldPosts?.map((post) =>
-        //     post.id === id ? { ...post, ...updatedData } : post
-        //   )
-        // );
+
         queryClient.setQueryData<IPost[]>(
           [QUERY_KEYS.POSTS, { id: data.id }],
           (oldData) =>

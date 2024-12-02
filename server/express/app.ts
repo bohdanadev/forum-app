@@ -53,18 +53,18 @@ app.use(
   },
 );
 
-app.listen(port, host, async () => {
-  await myDataSource
-    .initialize()
-    .then(() => {
-      console.log('Data Source has been initialized!');
-    })
-    .catch((err) => {
-      console.error('Error during Data Source initialization:', err);
-    });
-  await mongoose
-    .connect(mongoUrl)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('Could not connect to MongoDB:', err));
-  console.log(`Express server is running on port ${port}`);
-});
+// app.listen(port, host, async () => {
+//   await myDataSource
+//     .initialize()
+//     .then(() => {
+//       console.log('Data Source has been initialized!');
+//     })
+//     .catch((err) => {
+//       console.error('Error during Data Source initialization:', err);
+//     });
+//   await mongoose
+//     .connect(mongoUrl)
+//     .then(() => console.log('Connected to MongoDB'))
+//     .catch((err) => console.error('Could not connect to MongoDB:', err));
+//   console.log(`Express server is running on port ${port}`);
+// });

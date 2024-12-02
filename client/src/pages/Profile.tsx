@@ -37,11 +37,6 @@ const Username = styled.h2`
   margin: 0;
 `;
 
-const Email = styled.p`
-  font-size: 1rem;
-  color: #777;
-`;
-
 const InfoSection = styled.div`
   margin-top: 2rem;
   border-top: 1px solid #eee;
@@ -135,8 +130,13 @@ const Profile: FC = () => {
         <Username>{data.username}</Username>
       </Header>
       <InfoSection>
+        {currentUser.id === data.id && (
+          <InfoItem>
+            <Label>Email: </Label>
+            <Value>{data.email}</Value>
+          </InfoItem>
+        )}
         <InfoItem>
-          {currentUser.id === data.id && <Email>Email: {data.email}</Email>}
           <Label>Member Since:</Label>
           <Value>{moment(data.createdAt).format('MMMM Do YYYY')}</Value>
         </InfoItem>
