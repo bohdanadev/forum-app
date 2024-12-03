@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { authService } from '../../services/auth.service';
 import { ROUTER_KEYS } from '../../constants/app-keys';
@@ -16,11 +16,15 @@ const Sidebar = () => {
   const [_, setSearchParams] = useSearchParams();
 
   const currentUser: IUser = authService.isAuthenticated();
-  const { data: user } = useFetchUser(currentUser.id);
+  const { data: user } = useFetchUser(currentUser?.id);
 
   const unreadNotificationsCount = user?.notifications?.filter(
     (n) => !n.isRead
   ).length;
+
+  const goToProfile = () => {
+    navigate(`${ROUTER_KEYS.USERS}/${currentUser.id}`);
+  };
 
   const setAuthorIdQuery = (authorId: string | null) => {
     navigate(`${ROUTER_KEYS.POSTS}?${ROUTER_KEYS.AUTHOR_ID}=${authorId}`);
@@ -42,9 +46,9 @@ const Sidebar = () => {
         <SidebarItem>Notifications</SidebarItem>
         <Notification>{unreadNotificationsCount || ''}</Notification>
       </NotificationsContainer>
-      <Link to={`${ROUTER_KEYS.USERS}/${currentUser.id}`}>
-        <SidebarItem>Profile</SidebarItem>
-      </Link>
+      {/* <Link to={`${ROUTER_KEYS.USERS}/${currentUser.id}`}> */}
+      <SidebarItem onClick={goToProfile}>Profile</SidebarItem>
+      {/* </Link> */}
       <SidebarItem onClick={() => setAuthorIdQuery(currentUser?.id)}>
         My posts
       </SidebarItem>

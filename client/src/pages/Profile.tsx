@@ -1,14 +1,15 @@
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import styled from 'styled-components';
+import moment from 'moment';
+
 import avatar from '../assets/avatar.png';
 import Modal from '../components/Modal/Modal';
 import { authService } from '../services/auth.service';
-import { useParams } from 'react-router-dom';
 import useFetchUser from '../hooks/useFetchUser';
-import { SubmitHandler, useForm } from 'react-hook-form';
 import { IUser } from '../interfaces/user.interface';
 import useMutateProfile from '../hooks/useMutateProfile';
-import moment from 'moment';
 
 const ProfileContainer = styled.div`
   margin: 0;
@@ -82,21 +83,15 @@ const EditButton = styled.button`
 
 const Profile: FC = () => {
   const { id } = useParams();
+  const { isPending, isError, data, error, refetch } = useFetchUser(id!);
+
+  useEffect(() => {
+    refetch();
+  }, [id, refetch]);
+
   const { register, handleSubmit, setValue, watch } = useForm<IUser>();
-  const { isPending, isError, data, error } = useFetchUser(id!);
 
-  // useEffect(()=> {
-
-  // },[id])
-
-  const currentUser = authService.isAuthenticated();
-  // const userData = {
-  //   username: 'John Doe',
-  //   email: 'johndoe@example.com',
-  //   phone: '123-456-7890',
-  //   address: '123 Main St, Springfield, USA',
-  //   joined: 'January 1, 2023',
-  // };
+  const currentUser: IUser = authService.isAuthenticated();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -126,22 +121,22 @@ const Profile: FC = () => {
   return (
     <ProfileContainer>
       <Header>
-        <Avatar src={data.avatarUrl ?? avatar} alt='User Avatar' />
-        <Username>{data.username}</Username>
+        <Avatar src={data?.avatarUrl ?? avatar} alt='User Avatar' />
+        <Username>{data?.username}</Username>
       </Header>
       <InfoSection>
-        {currentUser.id === data.id && (
+        {currentUser.id === data?.id && (
           <InfoItem>
             <Label>Email: </Label>
-            <Value>{data.email}</Value>
+            <Value>{data?.email}</Value>
           </InfoItem>
         )}
         <InfoItem>
           <Label>Member Since:</Label>
-          <Value>{moment(data.createdAt).format('MMMM Do YYYY')}</Value>
+          <Value>{moment(data?.createdAt).format('MMMM Do YYYY')}</Value>
         </InfoItem>
       </InfoSection>
-      {currentUser.id === data.id && (
+      {currentUser?.id === data?.id && (
         <EditButton onClick={handleEditProfile}>Edit Profile</EditButton>
       )}
 
@@ -157,7 +152,7 @@ const Profile: FC = () => {
               id='avatarUrl'
               type='url'
               {...register('avatarUrl')}
-              defaultValue={data.avatarUrl}
+              defaultValue={data?.avatarUrl}
             />
           </div>
           <div>
@@ -166,7 +161,7 @@ const Profile: FC = () => {
               id='email'
               type='email'
               {...register('email')}
-              defaultValue={data.email}
+              defaultValue={data?.email}
             />
           </div>
           <div>
@@ -175,7 +170,7 @@ const Profile: FC = () => {
               id='username'
               type='text'
               {...register('username')}
-              defaultValue={data.username}
+              defaultValue={data?.username}
             />
           </div>
           <button type='submit'>Save Changes</button>

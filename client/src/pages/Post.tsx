@@ -16,50 +16,7 @@ import useMutatePost from '../hooks/useMutatePost';
 import { useMutateLike } from '../hooks/useLikeMutation';
 import { IPost } from '../interfaces/post.interface';
 import { authService } from '../services/auth.service';
-
-// const dummyComments = [
-//   {
-//     id: 1,
-//     author: 'Alice',
-//     content: 'This is a great post!',
-//     replies: [
-//       {
-//         id: 2,
-//         author: 'Bob',
-//         content: 'I agree!',
-//         replies: [
-//           {
-//             id: 3,
-//             author: 'Charlie',
-//             content: 'Same here!',
-//           },
-//           {
-//             id: 3,
-//             author: 'Charlie',
-//             content: 'Same here!',
-//           },
-//           {
-//             id: 3,
-//             author: 'Charlie',
-//             content: 'Same here!',
-//           },
-//         ],
-//       },
-//       {
-//         id: 2,
-//         author: 'Bob',
-//         content: 'I agree!',
-//         replies: [
-//           {
-//             id: 3,
-//             author: 'Charlie',
-//             content: 'Same here!',
-//           },
-//         ],
-//       },
-//     ],
-//   },
-// ];
+import AuthorCard from '../components/AuthorCard/AuthorCard';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -176,40 +133,6 @@ const PostContent = styled.div`
   }
 `;
 
-const AuthorCard = styled.div`
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  max-height: 300px;
-
-  img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-  }
-
-  h3 {
-    font-size: 1.4em;
-    margin: 10px 0 5px;
-    color: #333;
-  }
-
-  p {
-    font-size: 0.9em;
-    color: #555;
-  }
-
-  .contact {
-    margin-top: 10px;
-    font-size: 0.9em;
-    color: #007bff;
-    text-decoration: none;
-  }
-`;
-
 const Post = () => {
   const { id } = useParams();
   const [isEditModalOpen, setEditModalOpen] = useState(false);
@@ -299,11 +222,11 @@ const Post = () => {
           <ActionsContainer>
             <ActionButton>
               <LikeButton action={likePost} />
-              <div>{post?.likes?.length}</div>
+              <div>{post?.likes?.length ? post?.likes?.length : ''}</div>
             </ActionButton>
             <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <div>{post?.comments?.length}</div>
+              <div>{post?.comments?.length ? post?.comments?.length : ''}</div>
             </ActionButton>
             {user && user.id === post?.author?.id && (
               <ActionButton onClick={openEditModal}>
@@ -320,15 +243,7 @@ const Post = () => {
         {isCommentsOpen && <Comments postId={post!.id!} />}
       </MainContent>
 
-      {/* Author Info Card */}
-      <AuthorCard>
-        <img src={post?.author.avatarUrl} alt='Author' />
-        <h3>{post?.author.username}</h3>
-        <p>Acclaimed author of the post</p>
-        <a href='tel:+38000000000' className='contact'>
-          +38 000 000 000
-        </a>
-      </AuthorCard>
+      <AuthorCard author={post!.author!} />
       {isEditModalOpen && (
         <Modal
           isOpen={isEditModalOpen}

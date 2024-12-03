@@ -28,7 +28,10 @@ const router = createBrowserRouter(
             { index: true, element: <Navigate to={'posts'} /> },
             { path: 'posts', element: <HomePage /> },
             { path: 'notifications', element: <NotificationsPage /> },
-            { path: 'users/:id', element: <Profile /> },
+            {
+              path: 'users/:id',
+              element: <Profile key={window.location.pathname} />,
+            },
             { path: 'posts/:id', element: <Post /> },
           ],
         },
