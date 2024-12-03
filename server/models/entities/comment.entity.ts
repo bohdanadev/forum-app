@@ -30,14 +30,14 @@ export class Comment {
   post: Post;
 
   @OneToMany(() => Comment, (comment) => comment.parentComment, {
-    cascade: true,
+    onDelete: 'CASCADE',
   })
   replies: Comment[];
 
   @ManyToOne(() => Comment, (comment) => comment.replies, { nullable: true })
   parentComment: Comment;
 
-  @OneToMany(() => Like, (like) => like.comment, { cascade: true })
+  @OneToMany(() => Like, (like) => like.comment, { onDelete: 'CASCADE' })
   likes: Like[];
 
   @CreateDateColumn()

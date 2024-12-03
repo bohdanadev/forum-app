@@ -1,4 +1,4 @@
-// import * as path from 'node:path';
+import * as path from 'node:path';
 
 import * as dotenv from 'dotenv';
 import { DataSource } from 'typeorm';
@@ -16,9 +16,7 @@ export const myDataSource = new DataSource({
   username: databaseConfig.user,
   password: databaseConfig.password,
   database: databaseConfig.dbName,
-  entities: [__dirname + '/models/entities/*.entity.{ts,js}'],
-  //   migrations: [
-  //     path.join(process.cwd(), 'src', 'database', 'migrations', '*.ts'),
-  //   ],
-  synchronize: true,
+  entities: [path.join(process.cwd(), 'models', 'entities', '*.entity.ts')],
+  migrations: [path.join(process.cwd(), 'src', 'migrations', '*.ts')],
+  synchronize: false,
 });
