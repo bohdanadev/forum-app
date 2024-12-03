@@ -29,7 +29,7 @@ class UserRepository {
   }
 
   async findById(id: string): Promise<IUser> {
-    return await UserModel.findById(id).exec();
+    // return await UserModel.findById(id).exec();
     // const users = this.repository.findOne({ where: { id } });
     // return plainToInstance(User, users, { excludeExtraneousValues: true });
   }
@@ -50,10 +50,9 @@ class UserRepository {
   }
 
   async create(user: BaseUserReqDto): Promise<IUser> {
-    const newUser = await UserModel.create(user);
-    await newUser.save();
-    return newUser.toJSON();
-
+    // const newUser = await UserModel.create(user);
+    // await newUser.save();
+    // return newUser.toJSON();
     //POSTGRES
     // const userEntity = this.repository.create(user);
     // const savedUser = this.repository.save(userEntity);
@@ -76,19 +75,17 @@ class UserRepository {
   }
 
   async getByParamsQuery(dto: SignInReqDto): Promise<IUser> {
-    const existingUser = await UserModel.findOne({
-      $or: [{ email: dto.identifier }, { username: dto.identifier }],
-    });
-    if (existingUser && (await existingUser.comparePassword(dto.password))) {
-      return existingUser.toJSON();
-    } else {
-      throw new NotFoundException(`Wrong credentials`);
-    }
-
+    // const existingUser = await UserModel.findOne({
+    //   $or: [{ email: dto.identifier }, { username: dto.identifier }],
+    // });
+    // if (existingUser && (await existingUser.comparePassword(dto.password))) {
+    //   return existingUser.toJSON();
+    // } else {
+    //   throw new NotFoundException(`Wrong credentials`);
+    // }
     //POSTGRES
     // const queryRunner = myDataSource.createQueryRunner();
     // await queryRunner.connect();
-
     // try {
     //   const result = await queryRunner.query(
     //     'SELECT * FROM "users" WHERE username = $1 OR email = $1 LIMIT 1',

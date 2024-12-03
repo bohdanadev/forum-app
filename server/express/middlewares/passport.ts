@@ -4,6 +4,7 @@ import {
   StrategyOptions,
 } from 'passport-jwt';
 import * as passport from 'passport';
+
 import { ConfigStaticService } from '../../config/config-static';
 import { UserModel } from '../../models/schemas/user.schema';
 
@@ -18,7 +19,6 @@ passport.use(
   new JwtStrategy(options, async (jwtPayload, done) => {
     try {
       const user = await UserModel.findById(jwtPayload.sub);
-      console.log('+-+-+++++++++', user);
 
       if (user) {
         return done(null, user);

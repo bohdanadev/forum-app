@@ -1,15 +1,16 @@
 import * as bcrypt from 'bcrypt';
 import { HttpStatus } from '@nestjs/common';
+
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
 import { AuthResDto } from '../../models/dto/auth.res.dto';
 import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
 import { IJwtPayload } from '../../models/interfaces/token-payload.interface';
-import { userRepository } from '../users/users.repository';
 import { ApiError } from '../common/api-error';
-import { comparePassword, generateAccessToken } from '../../utils/helpers';
+import { generateAccessToken } from '../../utils/helpers';
 import { UserMapper } from '../../utils/user-mapper';
 import { UserModel } from '../../models/schemas/user.schema';
 import { IUser } from '../../models/interfaces/user.interface';
+import { userService } from '../users/users.service';
 
 class AuthService {
   public async signUp(dto: SignUpReqDto): Promise<IUser> {
@@ -20,13 +21,13 @@ class AuthService {
     }
     const password = await bcrypt.hash(dto.password, 10);
 
-    const user = await userRepository.create({ ...dto, password });
+    const user = await userService.create({ ...dto, password });
 
     return user;
   }
 
   public async signIn(dto: SignInReqDto): Promise<AuthResDto> {
-    const result = await userRepository.getByParamsQuery(dto);
+    const result = await userService.getByParamsQuery(dto);
     if (!result) {
       throw new ApiError('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }

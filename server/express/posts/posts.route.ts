@@ -7,6 +7,7 @@ import { PostModel } from '../../models/schemas/post.schema';
 import { IPost } from '../../models/interfaces/post.interface';
 import postValidationSchema from '../../validation/post.joi.schema';
 import { postController } from './posts.controller';
+import { commentController } from '../comments/comments.controller';
 
 const router = Router();
 export const commonMiddleware = new CommonMiddleware(PostModel);
@@ -56,6 +57,27 @@ router.delete(
   authMiddleware.authCheck,
   commonMiddleware.isExist<IPost>('id'),
   tryCatch(postController.deletePost),
+);
+
+router.post(
+  '/:id/comments',
+  authMiddleware.authCheck,
+  commonMiddleware.isExist<IPost>('id'),
+  tryCatch(commentController.createComment),
+);
+
+router.get(
+  '/:id/comments',
+  authMiddleware.authCheck,
+  commonMiddleware.isExist<IPost>('id'),
+  tryCatch(commentController.getCommentsByPost),
+);
+
+router.post(
+  '/:id/comments/like',
+  authMiddleware.authCheck,
+  commonMiddleware.isExist<IPost>('id'),
+  tryCatch(commentController.likeComment),
 );
 
 export const postRouter = router;

@@ -4,7 +4,6 @@ import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPost } from '../../models/interfaces/post.interface';
 import { postService } from './posts.service';
 import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
-import { PostModel } from '../../models/schemas/post.schema';
 import { ApiError } from 'common/api-error';
 
 class PostController {
