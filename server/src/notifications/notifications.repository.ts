@@ -53,7 +53,7 @@ export class NotificationRepository extends Repository<Notification> {
           'content', c.content
         ) AS "comment"
       FROM notification n
-      LEFT JOIN "user" u ON n."actorId" = u.id
+      LEFT JOIN "users" u ON n."actorId" = u.id
       LEFT JOIN post p ON n."postId" = p.id
       LEFT JOIN comment c ON n."commentId" = c.id
       WHERE n."recipientId" = $1

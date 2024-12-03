@@ -178,7 +178,7 @@ export class PostRepository extends Repository<Post> {
     const sql = `
     SELECT
       post.*,
-      jsonb_build_object('id', author.id, 'username', author.username) AS author,
+      jsonb_build_object('id', author.id, 'username', author.username, 'avatarUrl', author."avatarUrl") AS author,
       COALESCE(jsonb_agg(DISTINCT CASE 
       WHEN likes.id IS NOT NULL THEN 
       jsonb_build_object('id', likes.id, 'author', 
