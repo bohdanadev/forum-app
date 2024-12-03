@@ -3,13 +3,24 @@ import { FC, useState } from 'react';
 import search from '../../assets/search.png';
 import { SearchButton, SearchContainer, SearchInput } from './search.styled';
 
-const Search: FC = () => {
+interface IProps {
+  handleSearch: (searchText: string) => void;
+}
+
+const Search: FC<IProps> = ({ handleSearch }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSearch = () => {
-    console.log(`Searching for: ${searchQuery}`);
+  const handleSearchAction = () => {
+    if (searchQuery.trim()) {
+      handleSearch(searchQuery.trim());
+      setSearchQuery('');
+    }
+  };
 
-    setSearchQuery('');
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearchAction();
+    }
   };
 
   return (
@@ -19,8 +30,9 @@ const Search: FC = () => {
         placeholder='Search...'
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
       />
-      <SearchButton onClick={handleSearch}>
+      <SearchButton onClick={handleSearchAction}>
         <img src={search} alt='Search' />
       </SearchButton>
     </SearchContainer>

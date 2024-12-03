@@ -1,15 +1,18 @@
 import { FC } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 import { useFetchPosts } from '../../hooks/useFetchPosts';
 import PostCard from './PostCard';
 
 const Content: FC = () => {
+  const [searchParams, _] = useSearchParams();
+
   const { data, fetchNextPage, hasNextPage, isLoading, isError } =
     useFetchPosts({
-      search: '',
-      tag: '',
-      authorId: '',
+      search: searchParams?.get('search') || '',
+      tag: searchParams.get('tag') || '',
+      authorId: searchParams?.get('authorId') || '',
       limit: 4,
       offset: 0,
     });
@@ -19,6 +22,8 @@ const Content: FC = () => {
 
   const fetchedPostsCount =
     data?.pages.reduce((total, page) => total + page.data.length, 0) || 0;
+
+  if (fetchedPostsCount === 0) return <p>No posts found.</p>;
 
   return (
     <InfiniteScroll

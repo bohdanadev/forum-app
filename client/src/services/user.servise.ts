@@ -3,7 +3,6 @@ import {
   NotificationsListQuery,
   NotificationsListRes,
 } from '../hooks/useFetchNotifications';
-import { INotification } from '../interfaces/notification.interface';
 import { IUser } from '../interfaces/user.interface';
 import HttpService from './http.service';
 
@@ -45,7 +44,7 @@ class UserService extends HttpService {
 
   async readNotification(id: number | string) {
     return await this.patch<void>(
-      `${API_KEYS.NOTIFICATIONS}/${id}/read`,
+      `${API_KEYS.NOTIFICATIONS}/${id}/${API_KEYS.READ}`,
       {},
       {},
       true

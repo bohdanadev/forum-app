@@ -1,7 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { authService } from '../../services/auth.service';
-import { API_KEYS } from '../../constants/app-keys';
+import { ROUTER_KEYS } from '../../constants/app-keys';
 import {
   Notification,
   NotificationsContainer,
@@ -9,31 +9,45 @@ import {
   SidebarItem,
 } from './sidebar.styled';
 import useFetchUser from '../../hooks/useFetchUser';
+import { IUser } from '../../interfaces/user.interface';
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [_, setSearchParams] = useSearchParams();
 
-  const currentUser = authService.isAuthenticated();
+  const currentUser: IUser = authService.isAuthenticated();
   const { data: user } = useFetchUser(currentUser.id);
 
   const unreadNotificationsCount = user?.notifications?.filter(
     (n) => !n.isRead
   ).length;
 
+  const setAuthorIdQuery = (authorId: string | null) => {
+    navigate(`${ROUTER_KEYS.POSTS}?${ROUTER_KEYS.AUTHOR_ID}=${authorId}`);
+    // setSearchParams((params) => {
+    //   params.set('authorId', authorId!);
+    //   return params;
+    // });
+  };
+
   const logout = async () => {
     authService.signOut();
-    navigate('/signin');
+    navigate(`/${ROUTER_KEYS.SIGNIN}`);
   };
   return (
     <SidebarContainer>
-      <NotificationsContainer onClick={() => navigate('notifications')}>
+      <NotificationsContainer
+        onClick={() => navigate(ROUTER_KEYS.NOTIFICATIONS)}
+      >
         <SidebarItem>Notifications</SidebarItem>
         <Notification>{unreadNotificationsCount || ''}</Notification>
       </NotificationsContainer>
-      <Link to={`${API_KEYS.USERS}/${currentUser.id}`}>
+      <Link to={`${ROUTER_KEYS.USERS}/${currentUser.id}`}>
         <SidebarItem>Profile</SidebarItem>
       </Link>
-      <SidebarItem>My posts</SidebarItem>
+      <SidebarItem onClick={() => setAuthorIdQuery(currentUser?.id)}>
+        My posts
+      </SidebarItem>
       <SidebarItem>Settings</SidebarItem>
       <SidebarItem onClick={logout}>Logout</SidebarItem>
     </SidebarContainer>

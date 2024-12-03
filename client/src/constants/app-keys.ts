@@ -6,6 +6,7 @@ export const API_KEYS = {
   LIKE: 'like',
   COMMENTS: 'comments',
   NOTIFICATIONS: 'notifications',
+  READ: 'read',
   VERSION: 'v1.1',
 };
 
@@ -17,4 +18,15 @@ export const QUERY_KEYS = {
   COMMENTS: 'comments',
   LIKES: 'likes',
   NOTIFICATIONS: 'notifications',
+};
+
+export const ROUTER_KEYS = {
+  SIGNUP: 'signup',
+  SIGNIN: 'signin',
+  HOME: '/',
+  USERS: '/users',
+  POSTS: 'posts',
+  NOTIFICATIONS: 'notifications',
+  LIKE: 'like',
+  AUTHOR_ID: 'authorId',
 };

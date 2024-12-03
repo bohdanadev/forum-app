@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Button } from '../Button/Button';
 import Modal from '../Modal/Modal';
@@ -19,9 +19,11 @@ import {
   StyledHeader,
 } from './header.styled';
 import avatar from '../../assets/avatar.png';
+import { ROUTER_KEYS } from '../../constants/app-keys';
 
 const Header = () => {
   const navigate = useNavigate();
+  const [_, setSearchParams] = useSearchParams();
   const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -43,6 +45,18 @@ const Header = () => {
     setErrorMessage(error.message);
   }
 
+  const setSearchQuery = (searchText: string) => {
+    setSearchParams((params) => {
+      params.set('search', searchText);
+      return params;
+    });
+  };
+
+  const clearQueryParams = () => {
+    setSearchParams({});
+    navigate(ROUTER_KEYS.HOME);
+  };
+
   const handleDeleteAccount = () => {
     deleteAccount({});
     setMenuOpen(false);
@@ -59,10 +73,10 @@ const Header = () => {
   return (
     <StyledHeader>
       <ButtonContainer>
-        <HeaderButton onClick={() => navigate('/')}>Home</HeaderButton>
+        <HeaderButton onClick={clearQueryParams}>Home</HeaderButton>
         {user && <HeaderButton onClick={openModal}>Add post</HeaderButton>}
       </ButtonContainer>
-      {user && <Search />}
+      {user && <Search handleSearch={setSearchQuery} />}
       {user ? (
         <AvatarContainer>
           <AvatarImg
@@ -79,7 +93,9 @@ const Header = () => {
           )}
         </AvatarContainer>
       ) : (
-        <HeaderButton onClick={() => navigate('signin')}>SignIn</HeaderButton>
+        <HeaderButton onClick={() => navigate(ROUTER_KEYS.SIGNIN)}>
+          SignIn
+        </HeaderButton>
       )}
       {modalOpen && (
         <Modal isOpen={modalOpen} onClose={closeModal} title='Create Post'>
