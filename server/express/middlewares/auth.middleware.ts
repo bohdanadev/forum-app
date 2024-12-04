@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import passport from './passport';
 
 import { Request, Response, NextFunction } from 'express';
+import { IUser } from '../../models/interfaces/user.interface';
 
 class AuthMiddleware {
   public authCheck(req: Request, res: Response, next: NextFunction): void {
@@ -14,7 +15,7 @@ class AuthMiddleware {
           .status(HttpStatus.UNAUTHORIZED)
           .json({ message: 'Unauthorized' });
       }
-      req.user = user;
+      req.user = user as IUser;
       next();
     })(req, res, next);
   }

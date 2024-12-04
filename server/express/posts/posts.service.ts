@@ -1,9 +1,10 @@
-import { ApiError } from 'common/api-error';
+import { FilterQuery, Types } from 'mongoose';
+import { HttpStatus } from '@nestjs/common';
+
+import { ApiError } from '../common/api-error';
 import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';
-import { FilterQuery, Types } from 'mongoose';
-import { HttpStatus } from '@nestjs/common';
 
 class PostService {
   async getList(query: PostsListQueryDto): Promise<[IPostDoc[], number]> {
@@ -30,6 +31,7 @@ class PostService {
 
     return await Promise.all([
       PostModel.find(filterObj)
+        .populate('author')
         .sort({ createdAt: -1 })
         .limit(query.limit)
         .skip(query.offset),
@@ -83,7 +85,7 @@ class PostService {
   }
 
   async getById(user: any, id: string): Promise<IPostDoc | null> {
-    return PostModel.findById(id);
+    return PostModel.findById(id).populate('author');
   }
 
   async getByIdQuery(user: any, id: string): Promise<IPostDoc | null> {
@@ -105,7 +107,7 @@ class PostService {
     });
   }
 
-  async like(userId: string, id: string): Promise<IPostDoc> {
+  async like(userId: string, id: string): Promise<number> {
     const post = await PostModel.findById(id);
 
     if (post.author.toString() === userId) {
@@ -121,7 +123,7 @@ class PostService {
 
     post.likes.push(new Types.ObjectId(userId));
     await post.save();
-    return post;
+    return post.likes.length;
   }
 
   async delete(id: string): Promise<IPostDoc | null> {

@@ -1,12 +1,12 @@
 import * as mongoose from 'mongoose';
+import { HttpStatus } from '@nestjs/common';
+
 import { UserResDto } from '../../models/dto/user.res.dto';
 import { UserModel } from '../../models/schemas/user.schema';
-import { userRepository } from './users.repository';
 import { IUser } from '../../models/interfaces/user.interface';
 import { BaseUserReqDto } from '../../models/dto/user.req.dto';
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
-import { ApiError } from 'common/api-error';
-import { HttpStatus } from '@nestjs/common';
+import { ApiError } from '../common/api-error';
 
 class UserService {
   public async getListModel() {
@@ -15,7 +15,7 @@ class UserService {
   }
 
   public async getListQuery(): Promise<any> {
-    await userRepository.findAllQuery();
+    // await userRepository.findAllQuery();
     return await UserModel.db
       .collection('users')
       .find({}, { projection: { password: 0 } })
@@ -54,14 +54,14 @@ class UserService {
   }
 
   public async update(userId: string, dto: IUser): Promise<UserResDto> {
-    const result = await UserModel.findByIdAndUpdate(userId, dto);
-    console.log(result);
-    return await userRepository.updateById(userId, dto);
+    return await UserModel.findByIdAndUpdate(userId, dto);
+
+    // return await userRepository.updateById(userId, dto);
   }
 
   public async delete(userId: string): Promise<void> {
     await UserModel.findByIdAndDelete(userId);
-    await userRepository.deleteById(userId);
+    // await userRepository.deleteById(userId);
   }
 }
 

@@ -1,14 +1,17 @@
 import { Request, Response } from 'express';
-import { IComment } from '../../models/schemas/comment.schema';
 import { HttpStatus } from '@nestjs/common';
+
+import { IComment } from '../../models/schemas/comment.schema';
 import { commentService } from './comments.service';
+import { UserMapper } from '../../utils/user-mapper';
 
 class CommentController {
   async createComment(
     req: Request,
     res: Response,
   ): Promise<Response<IComment>> {
-    const { content, postId, parentCommentId } = req.body;
+    const { id: postId } = req.params;
+    const { content, parentCommentId } = req.body;
     const userId = req.user.id;
 
     const comment = await commentService.createComment(
@@ -18,14 +21,14 @@ class CommentController {
       parentCommentId,
     );
 
-    return res.status(HttpStatus.CREATED).json(comment);
+    return res.status(HttpStatus.CREATED).json({
+      ...comment.toJSON(),
+      author: UserMapper.toUserPublicData(comment.author),
+    });
   }
 
-  async getCommentsByPost(
-    req: Request,
-    res: Response,
-  ): Promise<Response<IComment[]>> {
-    const { postId } = req.params;
+  async getCommentsByPost(req: Request, res: Response): Promise<Response<any>> {
+    const { id: postId } = req.params;
 
     const comments = await commentService.getCommentsByPost(postId);
 

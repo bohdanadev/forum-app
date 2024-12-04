@@ -1,16 +1,26 @@
 import { Request, Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
+
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPost } from '../../models/interfaces/post.interface';
 import { postService } from './posts.service';
 import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
-import { ApiError } from 'common/api-error';
+import { UserMapper } from '../../utils/user-mapper';
 
 class PostController {
-  async getList(req: Request, res: Response): Promise<Response<IPost[]>> {
+  async getList(
+    req: Request,
+    res: Response,
+  ): Promise<Response<PostsListResDto>> {
     const query = req.query as PostsListQueryDto;
     const [posts, total] = await postService.getList(query);
-    return res.status(HttpStatus.OK).json({ posts, total, ...query });
+    const data = posts.map((post) => ({
+      ...post.toJSON(),
+      likes: post.likes.length,
+      comments: post.comments.length,
+      author: UserMapper.toUserPublicData(post.author),
+    }));
+    return res.status(HttpStatus.OK).json({ data, total, ...query });
   }
 
   async getListQuery(
@@ -25,8 +35,7 @@ class PostController {
   async getPostById(req: Request, res: Response): Promise<Response<IPost>> {
     const { id } = req.params;
     const user = req.user;
-    console.log(user);
-    const post = await postService.getById(user, id);
+    const post = (await postService.getById(user, id)).toJSON();
 
     if (!post) {
       return res
@@ -34,7 +43,9 @@ class PostController {
         .json({ message: 'Post not found' });
     }
 
-    return res.status(HttpStatus.OK).json(post);
+    return res
+      .status(HttpStatus.OK)
+      .json({ ...post, author: UserMapper.toUserPublicData(post.author) });
   }
 
   async getPostByIdQuery(
@@ -67,19 +78,12 @@ class PostController {
     return res.status(HttpStatus.OK).json(updatedPost);
   }
 
-  async likePost(
-    req: Request,
-    res: Response,
-  ): Promise<Response<{ message: string; likes: number }>> {
+  async likePost(req: Request, res: Response): Promise<Response<number>> {
     const { id } = req.params;
     const userId = req.user.id;
-    const post = await postService.like(userId, id);
-    if (!post) {
-      throw new ApiError('Post not found', HttpStatus.NOT_FOUND);
-    }
-    return res
-      .status(HttpStatus.OK)
-      .json({ message: 'Post liked successfully', likes: post.likes.length });
+    const likesCount = await postService.like(userId, id);
+
+    return res.status(HttpStatus.OK).json(likesCount);
   }
 
   async deletePost(req: Request, res: Response): Promise<Response<void>> {

@@ -15,14 +15,14 @@ router.get('/v1.1', tryCatch(userController.getList));
 router.get('/v1.2', tryCatch(userController.getListQuery));
 
 router.get(
-  '/:id/v1.1',
+  '/v1.1/:id',
   authMiddleware.authCheck,
   commonMiddleware.isExist<IUser>('id'),
   tryCatch(userController.getUserById),
 );
 
 router.get(
-  '/:id/v1.2',
+  '/v1.2/:id',
   authMiddleware.authCheck,
   commonMiddleware.isExist<IUser>('id'),
   tryCatch(userController.getUserByIdQuery),

@@ -1,7 +1,7 @@
 import { Router } from 'express';
+
 import { CommonMiddleware } from '../middlewares/common.middleware';
 import { tryCatch } from '../middlewares/tryCatch.middleware';
-
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { PostModel } from '../../models/schemas/post.schema';
 import { IPost } from '../../models/interfaces/post.interface';
@@ -67,7 +67,7 @@ router.post(
 );
 
 router.get(
-  '/:id/comments',
+  '/:id/comments/v1.1',
   authMiddleware.authCheck,
   commonMiddleware.isExist<IPost>('id'),
   tryCatch(commentController.getCommentsByPost),

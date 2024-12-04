@@ -22,23 +22,13 @@ export const useMutateLike = () => {
     mutationFn: mutateLike,
 
     onSuccess: (data, variables) => {
-      //   queryClient.setQueryData<number>(
-      //     [
-      //       QUERY_KEYS.LIKES,
-      //       variables.commentId ? variables.commentId : variables.postId,
-      //     ],
-      //     data
-      //   );
-
-      if (!variables.commentId && variables.postId) {
-        queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.POST, variables.postId],
-        });
-      }
-
       if (variables.commentId) {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.COMMENTS, variables.postId],
+        });
+      } else {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.POSTS, variables.postId],
         });
       }
     },

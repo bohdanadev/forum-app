@@ -1,8 +1,10 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
+import { IUser } from '../interfaces/user.interface';
+
 export interface IComment extends Document {
   content: string;
-  author: Types.ObjectId;
+  author: IUser;
   post: Types.ObjectId;
   parentComment?: Types.ObjectId;
   likes: Types.ObjectId[];

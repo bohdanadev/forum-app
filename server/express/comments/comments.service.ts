@@ -1,7 +1,10 @@
-import { Types } from 'mongoose';
-import { CommentModel, IComment } from '../../models/schemas/comment.schema';
-import { ApiError } from 'common/api-error';
 import { HttpStatus } from '@nestjs/common';
+import { Types } from 'mongoose';
+
+import { CommentModel, IComment } from '../../models/schemas/comment.schema';
+import { ApiError } from '../common/api-error';
+import { PostModel } from '../../models/schemas/post.schema';
+import { transformObjectIdRecursive } from '../../utils/helpers';
 
 class CommentService {
   async createComment(
@@ -12,9 +15,11 @@ class CommentService {
   ): Promise<IComment> {
     const comment = new CommentModel({
       content,
-      author: userId,
-      post: postId,
-      parentComment: parentCommentId || null,
+      author: new Types.ObjectId(userId),
+      post: new Types.ObjectId(postId),
+      parentComment: parentCommentId
+        ? new Types.ObjectId(parentCommentId)
+        : null,
     });
 
     await comment.save();
@@ -24,17 +29,42 @@ class CommentService {
         $push: { replies: comment._id },
       });
     }
+    if (!parentCommentId) {
+      await PostModel.findByIdAndUpdate(postId, {
+        $push: { comments: comment._id },
+      });
+    }
+
+    return await CommentModel.findById(comment._id).populate('author');
+  }
+
+  async populateReplies(comment) {
+    if (!comment.replies || comment.replies.length === 0) return comment;
+
+    comment.replies = await CommentModel.find({ _id: { $in: comment.replies } })
+      .populate('author', ['username', 'avatarUrl'])
+      .lean();
+
+    for (let i = 0; i < comment.replies.length; i++) {
+      comment.replies[i] = await this.populateReplies(comment.replies[i]);
+    }
 
     return comment;
   }
 
-  async getCommentsByPost(postId: string): Promise<IComment[]> {
-    return CommentModel.find({ post: postId, parentComment: null })
-      .populate('author', 'username')
-      .populate({
-        path: 'replies',
-        populate: { path: 'author', select: 'username' },
-      });
+  async getCommentsByPost(postId: string): Promise<any> {
+    const comments = await CommentModel.find({
+      post: postId,
+      parentComment: null,
+    })
+      .populate('author', ['username', 'avatarUrl'])
+      .lean();
+
+    for (let i = 0; i < comments.length; i++) {
+      comments[i] = await this.populateReplies(comments[i]);
+    }
+
+    return comments.map(transformObjectIdRecursive);
   }
 
   async likeComment(commentId: string, userId: string): Promise<number> {
