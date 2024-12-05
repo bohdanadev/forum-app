@@ -84,7 +84,7 @@ const Header = () => {
             alt='avatar'
             onClick={toggleMenu}
           />
-          <h4>{user.username ?? 'Username'}</h4>
+          <h4>{user.username ?? ''}</h4>
 
           {menuOpen && (
             <Menu>

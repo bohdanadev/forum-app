@@ -45,8 +45,8 @@ class UserController {
     const user = await userService.getByIdQuery(id);
     const result =
       id === userId
-        ? UserMapper.toResponseDTO(user)
-        : UserMapper.toUserPublicData(user);
+        ? UserMapper.toResponseDTO({ ...user, id: user._id.toString() })
+        : UserMapper.toUserPublicData({ ...user, id: user._id.toString() });
     return res.json(result);
   }
 
@@ -54,7 +54,7 @@ class UserController {
     req: Request,
     res: Response,
   ): Promise<Response<UserResDto>> {
-    const userId = req.res.locals.jwtPayload.userId as string;
+    const userId = req.user.id as string;
     const dto = req.body as IUser;
     const updatedUserData = await userService.update(userId, dto);
     return res.status(HttpStatus.CREATED).json(updatedUserData);
@@ -64,7 +64,7 @@ class UserController {
     req: Request,
     res: Response,
   ): Promise<Response<void>> {
-    const userId = req.res.locals.jwtPayload.userId as string;
+    const userId = req.user.id as string;
     await userService.delete(userId);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }

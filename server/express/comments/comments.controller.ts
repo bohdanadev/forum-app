@@ -35,6 +35,17 @@ class CommentController {
     return res.status(HttpStatus.OK).json(comments);
   }
 
+  async getCommentsByPostQuery(
+    req: Request,
+    res: Response,
+  ): Promise<Response<any>> {
+    const { id: postId } = req.params;
+
+    const comments = await commentService.getCommentsByPostQuery(postId);
+
+    return res.status(HttpStatus.OK).json(comments);
+  }
+
   async likeComment(req: Request, res: Response): Promise<Response<number>> {
     const { commentId } = req.body;
     const userId = req.user.id;

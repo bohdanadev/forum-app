@@ -7,6 +7,7 @@ import { IUser } from '../../models/interfaces/user.interface';
 import { BaseUserReqDto } from '../../models/dto/user.req.dto';
 import { SignInReqDto } from '../../models/dto/signIn.req.dto';
 import { ApiError } from '../common/api-error';
+import { UserInterface } from '../../models/schemas/post.schema';
 
 class UserService {
   public async getListModel() {
@@ -38,12 +39,18 @@ class UserService {
     return user.toJSON();
     // return await userRepository.findById(userId);
   }
-  public async getByIdQuery(userId: string): Promise<any> {
+  public async getByIdQuery(userId: string): Promise<UserInterface> {
     const id = new mongoose.Types.ObjectId(userId);
-    const user = await UserModel.db
-      .collection('users')
-      .findOne({ _id: id }, { projection: { password: 0 } });
-    return user.toJSON();
+    const user = await UserModel.aggregate([
+      { $match: { _id: id } },
+      {
+        $project: {
+          password: 0,
+        },
+      },
+    ]);
+
+    return user.length > 0 ? user[0] : null;
     //  return await userRepository.findByIdQuery(userId);
   }
 

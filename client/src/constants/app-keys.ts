@@ -7,7 +7,7 @@ export const API_KEYS = {
   COMMENTS: 'comments',
   NOTIFICATIONS: 'notifications',
   READ: 'read',
-  VERSION: 'v1.1',
+  VERSION: 'v1.2',
 };
 
 export const QUERY_KEYS = {

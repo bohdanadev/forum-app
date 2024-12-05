@@ -1,17 +1,18 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 import { IPost } from '../interfaces/post.interface';
 import { postService } from '../services/post.service';
-import { QUERY_KEYS } from '../constants/app-keys';
+import { QUERY_KEYS, ROUTER_KEYS } from '../constants/app-keys';
 
 const useMutatePost = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   return useMutation<
-    IPost | void,
-    void,
+    IPost | { message: string } | void,
+    unknown,
     { id: number | string; data?: Partial<IPost> }
   >({
     mutationFn: async ({ id, data }) =>
@@ -19,24 +20,29 @@ const useMutatePost = () => {
         ? await postService.updatePost(id, data)
         : await postService.deletePost(id),
     onSuccess: (data) => {
-      if (data) {
-        queryClient.setQueryData<IPost>([QUERY_KEYS.POST], data!);
+      if (data && 'id' in data) {
+        queryClient.invalidateQueries({
+          queryKey: [QUERY_KEYS.POSTS, data.id],
+        });
 
         queryClient.setQueryData<IPost[]>(
-          [QUERY_KEYS.POSTS, { id: data.id }],
+          [QUERY_KEYS.POSTS, data.id],
           (oldData) =>
             oldData
               ? {
                   ...oldData,
-                  ...data,
+                  data,
                 }
               : oldData
         );
       } else {
-        queryClient.setQueryData([QUERY_KEYS.POST], null);
         queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
-        navigate('/posts');
+        toast.success('Post deleted!');
+        navigate(`/${ROUTER_KEYS.POSTS}`);
       }
+    },
+    onError: () => {
+      toast.error('An error occurred.');
     },
   });
 };

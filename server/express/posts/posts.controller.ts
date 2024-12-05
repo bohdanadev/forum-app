@@ -29,7 +29,20 @@ class PostController {
   ): Promise<Response<PostsListResDto>> {
     const query = req.query as PostsListQueryDto;
     const [posts, total] = await postService.getListQuery(query);
-    return res.status(HttpStatus.OK).json({ posts, total, ...query });
+    const data = posts.map((post) => ({
+      ...post,
+      id: post._id.toString(),
+      likes: post.likes?.length || 0,
+      comments: post.comments?.length || 0,
+      author: post.author
+        ? {
+            id: post.author._id.toString(),
+            username: post.author.username,
+            avatarUrl: post.author.avatarUrl,
+          }
+        : null,
+    }));
+    return res.status(HttpStatus.OK).json({ data, total, ...query });
   }
 
   async getPostById(req: Request, res: Response): Promise<Response<IPost>> {
@@ -62,7 +75,10 @@ class PostController {
         .json({ message: 'Post not found' });
     }
 
-    return res.status(HttpStatus.OK).json(post);
+    return res.status(HttpStatus.OK).json({
+      ...post,
+      id: post._id.toString(),
+    });
   }
 
   async createPost(req: Request, res: Response): Promise<Response<IPost>> {

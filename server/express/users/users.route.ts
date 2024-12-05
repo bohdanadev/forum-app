@@ -32,7 +32,6 @@ router.put(
   '/',
   authMiddleware.authCheck,
   commonMiddleware.isBodyValid(userValidationSchema.update),
-  commonMiddleware.isExist<IUser>('username'),
   tryCatch(userController.updateUserData),
 );
 router.delete(

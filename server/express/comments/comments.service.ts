@@ -67,6 +67,32 @@ class CommentService {
     return comments.map(transformObjectIdRecursive);
   }
 
+  async getCommentsByPostQuery(postId: string): Promise<any> {
+    const comments = await CommentModel.aggregate([
+      { $match: { post: postId, parentComment: null } },
+      {
+        $graphLookup: {
+          from: 'comments',
+          startWith: '$_id',
+          connectFromField: '_id',
+          connectToField: 'parentComment',
+          as: 'nestedReplies',
+          depthField: 'level',
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author',
+        },
+      },
+    ]);
+
+    return comments.map(transformObjectIdRecursive);
+  }
+
   async likeComment(commentId: string, userId: string): Promise<number> {
     const comment = await CommentModel.findById(commentId);
     if (!comment) {

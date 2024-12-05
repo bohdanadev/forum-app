@@ -2,12 +2,16 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 
 import { IUser } from '../interfaces/user.interface';
 
+export interface UserInterface extends IUser {
+  _id: Types.ObjectId;
+}
+
 export interface IPostDoc extends Document {
   title: string;
   content: string;
   tags: string[];
   imageUrl: string;
-  author: IUser;
+  author: UserInterface;
   likes: Types.ObjectId[];
   comments: Types.ObjectId[];
   createdAt: Date;

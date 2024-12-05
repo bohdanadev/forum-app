@@ -73,6 +73,13 @@ router.get(
   tryCatch(commentController.getCommentsByPost),
 );
 
+router.get(
+  '/:id/comments/v1.2',
+  authMiddleware.authCheck,
+  commonMiddleware.isExist<IPost>('id'),
+  tryCatch(commentController.getCommentsByPost),
+);
+
 router.post(
   '/:id/comments/like',
   authMiddleware.authCheck,

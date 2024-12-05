@@ -5,6 +5,7 @@ import { ApiError } from '../common/api-error';
 import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';
+import { IUser } from '../../models/interfaces/user.interface';
 
 class PostService {
   async getList(query: PostsListQueryDto): Promise<[IPostDoc[], number]> {
@@ -61,11 +62,25 @@ class PostService {
       ];
     }
 
-    const skip = query.offset || 0;
-    const limit = query.limit || 3;
+    const skip = +query.offset || 0;
+    const limit = +query.limit || 3;
 
     const results = await PostModel.aggregate([
       { $match: filterObj },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author',
+        },
+      },
+      {
+        $unwind: {
+          path: '$author',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $facet: {
           posts: [
@@ -84,13 +99,46 @@ class PostService {
     return [posts, totalCount];
   }
 
-  async getById(user: any, id: string): Promise<IPostDoc | null> {
+  async getById(user: IUser, id: string): Promise<IPostDoc | null> {
     return PostModel.findById(id).populate('author');
   }
 
-  async getByIdQuery(user: any, id: string): Promise<IPostDoc | null> {
+  async getByIdQuery(user: IUser, id: string): Promise<IPostDoc | null> {
     const objectId = new Types.ObjectId(id);
-    const result = await PostModel.aggregate([{ $match: { _id: objectId } }]);
+    const result = await PostModel.aggregate([
+      { $match: { _id: objectId } },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'author',
+          foreignField: '_id',
+          as: 'author',
+        },
+      },
+      {
+        $unwind: {
+          path: '$author',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $project: {
+          title: 1,
+          content: 1,
+          tags: 1,
+          imageUrl: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          likes: 1,
+          comments: 1,
+          author: {
+            id: { $toString: '$author._id' },
+            username: '$author.username',
+            avatarUrl: '$author.avatarUrl',
+          },
+        },
+      },
+    ]);
 
     return result.length > 0 ? (result[0] as IPostDoc) : null;
   }
@@ -126,7 +174,7 @@ class PostService {
     return post.likes.length;
   }
 
-  async delete(id: string): Promise<IPostDoc | null> {
+  async delete(id: string): Promise<void> {
     return PostModel.findByIdAndDelete(id);
   }
 }

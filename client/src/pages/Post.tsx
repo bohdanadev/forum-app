@@ -138,41 +138,50 @@ const Post = () => {
   const [isEditModalOpen, setEditModalOpen] = useState(false);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
   const { data: post, isLoading, error } = useFetchPost(id!);
-  const [previewUrl, setPreviewUrl] = useState(post?.imageUrl || '');
-  const [tags, setTags] = useState(post?.tags ?? []);
-  const { register, handleSubmit, setValue, watch } = useForm<Partial<IPost>>();
-
-  const openEditModal = () => setEditModalOpen(true);
-  const closeEditModal = () => setEditModalOpen(false);
-  const openComments = () => setCommentsOpen(!isCommentsOpen);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
+  const { register, handleSubmit, setValue, watch, reset } =
+    useForm<Pick<IPost, 'title' | 'imageUrl' | 'content' | 'tags'>>();
 
   const { mutate: mutatePost } = useMutatePost();
 
   const user = authService.isAuthenticated();
+  const { mutate: like } = useMutateLike();
 
-  const imageUrl = watch('imageUrl', '');
+  const imageUrl = watch('imageUrl', post?.imageUrl);
+
+  useEffect(() => {
+    if (post) {
+      setPreviewUrl(post.imageUrl || '../../assets/avatar.png');
+      setTags(post.tags || []);
+      reset({
+        title: post.title,
+        imageUrl: post.imageUrl,
+        content: post.content,
+      });
+    }
+  }, [post, reset]);
 
   useEffect(() => {
     setPreviewUrl(imageUrl || '../../assets/avatar.png');
   }, [imageUrl]);
 
-  const updatePost: SubmitHandler<Partial<IPost>> = ({
-    title,
-    imageUrl,
-    content,
-    tags,
-  }) => {
+  const openEditModal = () => setEditModalOpen(true);
+  const closeEditModal = () => setEditModalOpen(false);
+  const openComments = () => setCommentsOpen(!isCommentsOpen);
+
+  const updatePost: SubmitHandler<
+    Pick<IPost, 'title' | 'imageUrl' | 'content' | 'tags'>
+  > = ({ title, imageUrl, content, tags }) => {
     if (id) {
       mutatePost({ id, data: { title, imageUrl, content, tags } });
       closeEditModal();
     }
   };
 
-  const { mutate: like } = useMutateLike();
-
   const likePost = async () => {
     if (post) {
-      like({ postId: post!.id! });
+      like({ postId: post.id! });
     }
   };
 
@@ -183,8 +192,12 @@ const Post = () => {
   const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && e.currentTarget.value.trim()) {
       e.preventDefault();
-      setTags([...tags, e.currentTarget.value.trim()]);
-      setValue('tags', [...tags, e.currentTarget.value.trim()]);
+      const newTag = e.currentTarget.value.trim();
+      if (!tags.includes(newTag)) {
+        const updatedTags = [...tags, newTag];
+        setTags(updatedTags);
+        setValue('tags', updatedTags);
+      }
       e.currentTarget.value = '';
     }
   };
@@ -222,11 +235,11 @@ const Post = () => {
           <ActionsContainer>
             <ActionButton>
               <LikeButton action={likePost} />
-              <div>{post?.likes?.length ? post?.likes?.length : ''}</div>
+              <div>{post?.likes?.length || ''}</div>
             </ActionButton>
             <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <div>{post?.comments?.length ? post?.comments?.length : ''}</div>
+              <div>{post?.comments?.length || ''}</div>
             </ActionButton>
             {user && user.id === post?.author?.id && (
               <ActionButton onClick={openEditModal}>
@@ -244,6 +257,7 @@ const Post = () => {
       </MainContent>
 
       <AuthorCard author={post!.author!} />
+
       {isEditModalOpen && (
         <Modal
           isOpen={isEditModalOpen}
@@ -272,23 +286,16 @@ const Post = () => {
                 }}
               />
               <label>Image:</label>
-              <input
-                type='url'
-                {...register('imageUrl')}
-                defaultValue={post?.imageUrl}
-              />
+              <input type='url' {...register('imageUrl')} />
             </div>
             <div>
               <label>Content:</label>
-              <textarea
-                {...register('content')}
-                defaultValue={post?.content}
-              ></textarea>
+              <textarea {...register('content')}></textarea>
             </div>
             <div>
               <label htmlFor='tags'>Tags:</label>
               <div>
-                {post?.tags?.map((tag) => (
+                {tags.map((tag) => (
                   <span key={tag}>
                     {tag}{' '}
                     <button type='button' onClick={() => handleRemoveTag(tag)}>
