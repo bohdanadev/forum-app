@@ -127,20 +127,49 @@ export class UsersService {
     // console.log(existingUser.toJSON());
 
     // Postgres
-    const foundUser = await this.userRepository.findOne({
-      where: { id },
-      relations: ['notifications'],
-    });
-    if (!foundUser) {
-      throw new NotFoundException(`User not found`);
+    const query = `
+    SELECT 
+      users.*, 
+      COALESCE(
+        json_agg(
+          jsonb_build_object(
+            'id', notifications.id,
+            'message', notifications.message,
+            'isRead', notifications.is_read,
+            'createdAt', notifications.created_at,
+            'actor', jsonb_build_object(
+              'id', actor.id,
+              'username', actor.username,
+              'avatarUrl', actor.avatar_url
+            ),
+            'post', jsonb_build_object(
+              'id', post.id,
+              'title', post.title
+            ),
+            'comment', jsonb_build_object(
+              'id', comment.id,
+              'content', comment.content
+            )
+          )
+        ) FILTER (WHERE notifications.id IS NOT NULL),
+        '[]'
+      ) AS notifications
+    FROM users
+    LEFT JOIN notifications ON notifications.recipient = users.id
+    LEFT JOIN users AS actor ON notifications.actor = actor.id
+    LEFT JOIN posts AS post ON notifications.post = post.id
+    LEFT JOIN comments AS comment ON notifications.comment = comment.id
+    WHERE users.id = $1
+    GROUP BY users.id;
+  `;
+
+    const result = await this.dataSource.query(query, [id]);
+
+    if (!result.length) {
+      throw new Error(`User not found`);
     }
-    // const unreadNotificationsCount = foundUser.notifications.filter(
-    //   (n) => !n.isRead,
-    // ).length;
 
-    console.log(foundUser);
-
-    return plainToInstance(User, foundUser, { excludeExtraneousValues: true });
+    return plainToInstance(User, result[0], { excludeExtraneousValues: true });
   }
 
   async findOneByIdQuery(id: string): Promise<any> {

@@ -26,6 +26,13 @@ class UserService {
   async getByParamsQuery(dto: SignInReqDto): Promise<IUser> {
     const existingUser = await UserModel.findOne({
       $or: [{ email: dto.identifier }, { username: dto.identifier }],
+    }).populate({
+      path: 'notifications',
+      populate: [
+        { path: 'actor', select: 'id username avatarUrl' },
+        { path: 'post', select: 'id title' },
+        { path: 'comment', select: 'id content' },
+      ],
     });
     if (existingUser && (await existingUser.comparePassword(dto.password))) {
       return existingUser.toJSON();
@@ -35,23 +42,112 @@ class UserService {
   }
 
   public async getById(userId: string): Promise<IUser> {
-    const user = await UserModel.findById(userId).exec();
-    return user.toJSON();
+    const user = await UserModel.findById(userId)
+      .populate({
+        path: 'notifications',
+        populate: [
+          { path: 'actor', select: 'id username avatarUrl' },
+          { path: 'post', select: 'id title' },
+          { path: 'comment', select: 'id content' },
+        ],
+      })
+      .exec();
+    return user.toJSON() as IUser;
     // return await userRepository.findById(userId);
   }
+  // public async getByIdQuery(userId: string): Promise<UserInterface> {
+  //   const id = new mongoose.Types.ObjectId(userId);
+  // const user = await UserModel.aggregate([
+  //   { $match: { _id: id } },
+  //   {
+  //     $project: {
+  //       password: 0,
+  //     },
+  //   },
+  // ]);
+
+  // return user.length > 0 ? user[0] : null;
+  //  return await userRepository.findByIdQuery(userId);
+  // }
+
   public async getByIdQuery(userId: string): Promise<UserInterface> {
-    const id = new mongoose.Types.ObjectId(userId);
-    const user = await UserModel.aggregate([
-      { $match: { _id: id } },
+    const pipeline = [
+      { $match: { _id: new mongoose.Types.ObjectId(userId) } },
       {
-        $project: {
-          password: 0,
+        $lookup: {
+          from: 'notifications',
+          localField: '_id',
+          foreignField: 'recipient',
+          as: 'notifications',
         },
       },
-    ]);
+      {
+        $unwind: {
+          path: '$notifications',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'notifications.actor',
+          foreignField: '_id',
+          as: 'notifications.actor',
+        },
+      },
+      {
+        $lookup: {
+          from: 'posts',
+          localField: 'notifications.post',
+          foreignField: '_id',
+          as: 'notifications.post',
+        },
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: 'notifications.comment',
+          foreignField: '_id',
+          as: 'notifications.comment',
+        },
+      },
+      {
+        $group: {
+          _id: '$_id',
+          username: { $first: '$username' },
+          email: { $first: '$email' },
+          avatarUrl: { $first: '$avatarUrl' },
+          notifications: {
+            $push: {
+              _id: '$notifications._id',
+              message: '$notifications.message',
+              isRead: '$notifications.isRead',
+              createdAt: '$notifications.createdAt',
+              actor: { $arrayElemAt: ['$notifications.actor', 0] },
+              post: { $arrayElemAt: ['$notifications.post', 0] },
+              comment: { $arrayElemAt: ['$notifications.comment', 0] },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          username: 1,
+          email: 1,
+          avatarUrl: 1,
+          notifications: 1,
+        },
+      },
+    ];
 
-    return user.length > 0 ? user[0] : null;
-    //  return await userRepository.findByIdQuery(userId);
+    const result = await UserModel.aggregate(pipeline).exec();
+
+    if (!result.length) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+
+    return result[0];
   }
 
   public async create(user: BaseUserReqDto): Promise<IUser> {

@@ -15,7 +15,7 @@ class AuthMiddleware {
           .status(HttpStatus.UNAUTHORIZED)
           .json({ message: 'Unauthorized' });
       }
-      req.user = user as IUser;
+      req.user = { ...user, id: user._id.toString() } as IUser;
       next();
     })(req, res, next);
   }

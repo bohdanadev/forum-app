@@ -6,6 +6,7 @@ import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';
 import { IUser } from '../../models/interfaces/user.interface';
+import { notificationService } from '../notifications/notifications.service';
 
 class PostService {
   async getList(query: PostsListQueryDto): Promise<[IPostDoc[], number]> {
@@ -155,7 +156,8 @@ class PostService {
     });
   }
 
-  async like(userId: string, id: string): Promise<number> {
+  async like(userData: IUser, id: string): Promise<number> {
+    const { id: userId, username } = userData;
     const post = await PostModel.findById(id);
 
     if (post.author.toString() === userId) {
@@ -171,6 +173,12 @@ class PostService {
 
     post.likes.push(new Types.ObjectId(userId));
     await post.save();
+    await notificationService.createNotification(
+      post.author._id.toString(),
+      userId,
+      `${username} liked your post: "${post.title}"`,
+      post.id,
+    );
     return post.likes.length;
   }
 

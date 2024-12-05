@@ -96,8 +96,7 @@ class PostController {
 
   async likePost(req: Request, res: Response): Promise<Response<number>> {
     const { id } = req.params;
-    const userId = req.user.id;
-    const likesCount = await postService.like(userId, id);
+    const likesCount = await postService.like(req.user, id);
 
     return res.status(HttpStatus.OK).json(likesCount);
   }

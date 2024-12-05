@@ -1,4 +1,6 @@
+import { INotificationDoc } from '../schemas/notification.schema';
 import { Notification } from '../entities/notification.entity';
+import { Types } from 'mongoose';
 
 export interface IUser {
   id?: string;
@@ -7,5 +9,8 @@ export interface IUser {
   password?: string;
   avatarUrl?: string;
   createdAt?: Date;
-  notifications?: Notification[];
+  notifications?: any;
+  // | Partial<Notification>[]
+  // | INotificationDoc[]
+  // | Types.ObjectId[];
 }

@@ -5,6 +5,7 @@ import { CommentModel, IComment } from '../../models/schemas/comment.schema';
 import { ApiError } from '../common/api-error';
 import { PostModel } from '../../models/schemas/post.schema';
 import { transformObjectIdRecursive } from '../../utils/helpers';
+import { notificationService } from '../notifications/notifications.service';
 
 class CommentService {
   async createComment(
@@ -28,11 +29,31 @@ class CommentService {
       await CommentModel.findByIdAndUpdate(parentCommentId, {
         $push: { replies: comment._id },
       });
-    }
-    if (!parentCommentId) {
-      await PostModel.findByIdAndUpdate(postId, {
+
+      const parentComment = await CommentModel.findById(parentCommentId);
+
+      if (parentComment && parentComment.author.toString() !== userId) {
+        await notificationService.createNotification(
+          parentComment.author.toString(),
+          userId,
+          `${content} replied to your comment`,
+          postId,
+          parentCommentId,
+        );
+      }
+    } else {
+      const post = await PostModel.findByIdAndUpdate(postId, {
         $push: { comments: comment._id },
       });
+
+      if (post && post.author.toString() !== userId) {
+        await notificationService.createNotification(
+          post.author.toString(),
+          userId,
+          `${content} commented on your post`,
+          postId,
+        );
+      }
     }
 
     return await CommentModel.findById(comment._id).populate('author');
@@ -115,6 +136,13 @@ class CommentService {
     }
 
     await comment.save();
+    await notificationService.createNotification(
+      comment.author.id,
+      userId,
+      `${comment.author.username} liked your comment: "${comment.content}"`,
+
+      comment.id,
+    );
     return comment.likes.length;
   }
 }

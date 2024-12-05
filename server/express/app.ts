@@ -1,4 +1,5 @@
 import * as express from 'express';
+import { HttpStatus } from '@nestjs/common';
 import mongoose from 'mongoose';
 import helmet from 'helmet';
 import * as cors from 'cors';
@@ -10,7 +11,7 @@ import { authRouter } from './auth/auth.route';
 import { postRouter } from './posts/posts.route';
 import { ApiError } from './common/api-error';
 import passport from './middlewares/passport';
-import { HttpStatus } from '@nestjs/common';
+import { notificationRouter } from './notifications/notifications.route';
 
 export const config = ConfigStaticService.get();
 
@@ -39,6 +40,7 @@ app.use(passport.initialize());
 app.use('/api/auth', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
+app.use('/api/notifications', notificationRouter);
 
 app.use(
   (
