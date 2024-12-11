@@ -2,10 +2,10 @@ import { Config } from './config.type';
 
 export default (): Config => ({
   app: {
-    nestPort: Number(process.env.APP_PORT_NEST) || 3000,
-    expressPort: Number(process.env.APP_PORT_EXPRESS) || 3001,
-    host: process.env.APP_HOST || 'localhost',
-    appUrl: process.env.APP_URL || 'http://localhost:5173',
+    nestPort: Number(process.env.APP_PORT_NEST),
+    expressPort: Number(process.env.APP_PORT_EXPRESS),
+    host: process.env.APP_HOST,
+    appUrl: process.env.APP_URL,
   },
   mongo: {
     mongoUrl: process.env.MONGO_URL,
