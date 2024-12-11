@@ -18,52 +18,47 @@ async function bootstrap() {
   const appConfig = configService.get<AppConfig>('app');
 
   app.enableCors({
-    origin: process.env.CORS_ORIGINS,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: [
-      'Authorization',
-      'Content-Type',
-      'Origin',
-      'Access-Control-Allow-Origin',
-    ],
+    origin: '*',
+    methods: '*',
+    allowedHeaders: '*',
     credentials: true,
   });
-  app.use((req, res, next) => {
-    if (req.method === 'OPTIONS') {
-      res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
-      res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-      );
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Content-Type, Authorization',
-      );
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.status(204).end();
-    } else {
-      next();
-    }
-  });
+  // app.use((req, res, next) => {
+  //   if (req.method === 'OPTIONS') {
+  //     res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
+  //     res.setHeader(
+  //       'Access-Control-Allow-Methods',
+  //       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  //     );
+  //     res.setHeader(
+  //       'Access-Control-Allow-Headers',
+  //       'Content-Type, Authorization',
+  //     );
+  //     res.setHeader('Access-Control-Allow-Credentials', 'true');
+  //     res.status(204).end();
+  //   } else {
+  //     next();
+  //   }
+  // });
 
-  app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
-    res.setHeader(
-      'Access-Control-Allow-Methods',
-      'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    );
-    res.setHeader(
-      'Access-Control-Allow-Headers',
-      'Content-Type, Authorization',
-    );
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  // app.use((req, res, next) => {
+  //   res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
+  //   res.setHeader(
+  //     'Access-Control-Allow-Methods',
+  //     'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  //   );
+  //   res.setHeader(
+  //     'Access-Control-Allow-Headers',
+  //     'Content-Type, Authorization',
+  //   );
+  //   res.setHeader('Access-Control-Allow-Credentials', 'true');
 
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end();
-    }
+  //   if (req.method === 'OPTIONS') {
+  //     return res.status(204).end();
+  //   }
 
-    next();
-  });
+  //   next();
+  // });
   const port = appConfig.nestPort;
   const host = appConfig.host;
   await app.listen(port, () => {
