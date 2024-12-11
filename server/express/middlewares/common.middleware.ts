@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { Model } from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 import { ObjectSchema } from 'joi';
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 
 interface CustomRequest extends Request {
   entity?: any;

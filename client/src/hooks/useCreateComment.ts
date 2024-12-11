@@ -19,13 +19,12 @@ export const useCreateComment = () => {
         input.content,
         input.parentCommentId
       ),
-    onSuccess: (newComment, variables) => {
-      queryClient.invalidateQueries(
-        { queryKey: [QUERY_KEYS.COMMENTS] },
-        variables.postId
-      );
+    onSuccess: (_newComment, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.COMMENTS, variables.postId],
+      });
     },
-    onError: (error, variables, context) => {
+    onError: (error) => {
       console.error('Error creating comment:', error);
     },
   });

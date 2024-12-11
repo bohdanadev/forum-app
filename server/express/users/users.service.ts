@@ -2,7 +2,7 @@ import * as mongoose from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 
 import { UserModel } from '../../models/schemas/user.schema';
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 import { IUser } from '../interfaces/user/user.interface';
 import { ISignIn } from '../interfaces/auth/signin.interface';
 import { IUserRes } from '../interfaces/auth/auth.res.interface';

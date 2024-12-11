@@ -247,11 +247,19 @@ const Post = () => {
           <ActionsContainer>
             <ActionButton>
               <LikeButton action={likePost} />
-              <div>{post?.likes?.length || ''}</div>
+              <div>
+                {Array.isArray(post?.likes)
+                  ? post.likes.length
+                  : post?.likes || ''}
+              </div>
             </ActionButton>
             <ActionButton onClick={openComments}>
               <img src={comment} alt='comment' />
-              <div>{post?.comments?.length || ''}</div>
+              <div>
+                {Array.isArray(post?.comments)
+                  ? post.comments.length
+                  : post?.comments || ''}
+              </div>
             </ActionButton>
             {user && user.id === post?.author?.id && (
               <ActionButton onClick={openEditModal}>

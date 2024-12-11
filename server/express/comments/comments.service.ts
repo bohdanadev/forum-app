@@ -2,7 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { Types } from 'mongoose';
 
 import { CommentModel, IComment } from '../../models/schemas/comment.schema';
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 import { PostModel } from '../../models/schemas/post.schema';
 import { transformObjectIdRecursive } from '../../utils/helpers';
 import { notificationService } from '../notifications/notifications.service';

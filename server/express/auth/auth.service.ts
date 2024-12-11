@@ -2,7 +2,7 @@ import * as bcrypt from 'bcrypt';
 import { HttpStatus } from '@nestjs/common';
 
 import { IJwtPayload } from '../interfaces/auth/jwt.payload.interface';
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 import { generateAccessToken } from '../../utils/helpers';
 import { UserModel } from '../../models/schemas/user.schema';
 import { userService } from '../users/users.service';

@@ -24,6 +24,7 @@
     }
   },
   "include": [
+    "config/**/*",
     "src/**/*",
     "express/**/*",
     "models/**/*",
@@ -31,6 +32,8 @@
     "validation/**/*",
     "utils/**/*",
     "types/**/*",
+    "api-error/api-error.ts",
+    "config/config-static.ts",
     "types"
   ],
   "exclude": ["node_modules", "dist"]

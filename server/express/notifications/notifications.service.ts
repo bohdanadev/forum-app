@@ -2,7 +2,7 @@ import { PipelineStage, Types } from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 
 import { NotificationModel } from '../../models/schemas/notification.schema';
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 import { UserModel } from '../../models/schemas/user.schema';
 
 class NotificationService {

@@ -22,7 +22,7 @@ export const useMutateLike = () => {
   return useMutation<number, unknown, LikeInput>({
     mutationFn: mutateLike,
 
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       if (variables.commentId) {
         queryClient.invalidateQueries({
           queryKey: [QUERY_KEYS.COMMENTS, variables.postId],
@@ -33,6 +33,7 @@ export const useMutateLike = () => {
         });
       }
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       const errorMessage =
         error?.response?.data?.message || error.message || 'An error occurred';

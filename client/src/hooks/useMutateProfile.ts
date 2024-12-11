@@ -40,7 +40,7 @@ const useMutateProfile = () => {
         navigate(ROUTER_KEYS.SIGNUP);
       }
     },
-    onError: (error) => {
+    onError: () => {
       toast.error('Failed to update profile.');
     },
   });

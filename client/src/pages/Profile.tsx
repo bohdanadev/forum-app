@@ -89,7 +89,7 @@ const Profile: FC = () => {
     refetch();
   }, [id, refetch]);
 
-  const { register, handleSubmit, setValue, watch } = useForm<IUser>();
+  const { register, handleSubmit } = useForm<IUser>();
 
   const currentUser: IUser = authService.isAuthenticated();
 

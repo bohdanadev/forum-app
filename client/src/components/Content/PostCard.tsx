@@ -16,6 +16,10 @@ interface IProps {
 }
 
 const PostCard: FC<IProps> = ({ post }) => {
+  const commentCount = Array.isArray(post.comments)
+    ? post.comments.length
+    : post.comments;
+  const likeCount = Array.isArray(post.likes) ? post.likes.length : post.likes;
   return (
     <StyledLink to={`/posts/${post.id}`}>
       <PostWrap>
@@ -33,7 +37,7 @@ const PostCard: FC<IProps> = ({ post }) => {
         </div>
         <PostInfo>
           <div>
-            {post.comments} replies • {post.likes} likes
+            {commentCount} replies • {likeCount} likes
           </div>
         </PostInfo>
       </PostWrap>

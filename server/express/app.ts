@@ -9,7 +9,7 @@ import { ConfigStaticService } from '../config/config-static';
 import { userRouter } from './users/users.route';
 import { authRouter } from './auth/auth.route';
 import { postRouter } from './posts/posts.route';
-import { ApiError } from './common/api-error';
+import { ApiError } from './api-error/api-error';
 import passport from './middlewares/passport';
 import { notificationRouter } from './notifications/notifications.route';
 
@@ -25,7 +25,7 @@ const mongoUrl = config.mongo.mongoUrl;
 app.use(helmet());
 app.use(
   cors({
-    origin: clientUrl,
+    origin: clientUrl || 'http://localhost:4173',
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     allowedHeaders: 'Content-Type, Authorization',
@@ -42,18 +42,11 @@ app.use('/api/users', userRouter);
 app.use('/api/posts', postRouter);
 app.use('/api/notifications', notificationRouter);
 
-app.use(
-  (
-    err: ApiError,
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction,
-  ) => {
-    res
-      .status(err.status || HttpStatus.INTERNAL_SERVER_ERROR)
-      .json({ message: err.message || 'Internal Server Error' });
-  },
-);
+app.use((err: ApiError, req: express.Request, res: express.Response) => {
+  res
+    .status(err.status || HttpStatus.INTERNAL_SERVER_ERROR)
+    .json({ message: err.message || 'Internal Server Error' });
+});
 
 app.listen(port, host, async () => {
   // await myDataSource

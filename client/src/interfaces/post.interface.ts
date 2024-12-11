@@ -9,8 +9,8 @@ export interface IPost {
   tags: string[];
   imageUrl: string;
   author: Pick<IUser, 'id' | 'username' | 'createdAt' | 'avatarUrl'>;
-  likes: ILike[];
-  comments: IComment[];
+  likes: number | ILike[];
+  comments: number | IComment[];
   createdAt: Date;
   updatedAt: Date;
 }

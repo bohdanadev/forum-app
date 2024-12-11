@@ -21,7 +21,6 @@ export class AuthService {
   public async validateUser(dto: SignInReqDto): Promise<UserResDto> {
     const user = await this.userService.findOne(dto);
     if (user) {
-      console.log('Validated:', user);
       return user;
     }
 

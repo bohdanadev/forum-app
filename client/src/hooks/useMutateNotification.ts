@@ -15,7 +15,7 @@ export const useMutateNotification = () => {
   return useMutation<void, unknown, number | string>({
     mutationFn: readNotification,
 
-    onSuccess: (data, notificationId) => {
+    onSuccess: (_data, notificationId) => {
       queryClient.setQueryData([QUERY_KEYS.USER], (cachedUser: IUser) => {
         if (!cachedUser) return cachedUser;
 

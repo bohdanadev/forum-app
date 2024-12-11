@@ -1,7 +1,7 @@
 import { FilterQuery, Types } from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 
-import { ApiError } from '../common/api-error';
+import { ApiError } from '../api-error/api-error';
 import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';

@@ -1,4 +1,4 @@
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { authService } from '../../services/auth.service';
 import { ROUTER_KEYS } from '../../constants/app-keys';
@@ -13,7 +13,7 @@ import { IUser } from '../../interfaces/user.interface';
 
 const Sidebar = () => {
   const navigate = useNavigate();
-  const [_, setSearchParams] = useSearchParams();
+  // const [_, setSearchParams] = useSearchParams();
 
   const currentUser: IUser = authService.isAuthenticated();
   const { data: user } = useFetchUser(currentUser?.id);
