@@ -30,10 +30,7 @@ async function bootstrap() {
   });
   app.use((req, res, next) => {
     if (req.method === 'OPTIONS') {
-      res.setHeader(
-        'Access-Control-Allow-Origin',
-        'https://your-frontend.vercel.app',
-      );
+      res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
       res.setHeader(
         'Access-Control-Allow-Methods',
         'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
