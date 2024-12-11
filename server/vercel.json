@@ -6,6 +6,7 @@
       "use": "@vercel/node"
     }
   ],
+  "ignore": ["server/express"],
   "routes": [
     {
       "src": "/(.*)",
