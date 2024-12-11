@@ -19,6 +19,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: process.env.CORS_ORIGINS,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
   const port = appConfig.nestPort;
