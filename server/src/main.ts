@@ -20,7 +20,33 @@ async function bootstrap() {
   app.enableCors({
     origin: process.env.CORS_ORIGINS,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: [
+      'Authorization',
+      'Content-Type',
+      'Origin',
+      'Access-Control-Allow-Origin',
+    ],
     credentials: true,
+  });
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.setHeader(
+        'Access-Control-Allow-Origin',
+        'https://your-frontend.vercel.app',
+      );
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      );
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization',
+      );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.status(204).end();
+    } else {
+      next();
+    }
   });
   const port = appConfig.nestPort;
   const host = appConfig.host;
