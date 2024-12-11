@@ -20,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
 import configuration from '../config/configuration';
 import { PostgresModule } from './postgres/postgres.module';
 // import { myDataSource } from '../ormconfig';
-import { AuthService } from 'auth/auth.service';
+import { AuthService } from './auth/auth.service';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { Notification } from '../models/entities/notification.entity';
