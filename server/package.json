@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "nest build && tsc",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"express/**/*.ts\"",
     "start": "nest start",
     "start:nest:dev": "nest start --watch",
@@ -16,7 +16,7 @@
     "watch:express": "nodemon --watch 'express/**/*.ts' --exec 'ts-node' express/app.ts",
     "start:express:prod": "node dist/express/app.js",
     "start:dev": "concurrently \"npm run start:nest:dev\" \"npm run start:express:dev\"",
-    "start:prod": "npm run build && concurrently \"npm run start\" \"npm run start:express:prod\"",
+    "start:prod": "npm run build && npm run start",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
