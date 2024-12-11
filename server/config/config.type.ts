@@ -19,6 +19,7 @@ export type PostgresConfig = {
   user: string;
   password: string;
   dbName: string;
+  dbUrl: string;
 };
 export type JwtConfig = {
   accessSecret: string;

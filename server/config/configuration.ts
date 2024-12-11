@@ -17,6 +17,7 @@ export default (): Config => ({
     user: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     dbName: process.env.POSTGRES_DB,
+    dbUrl: process.env.DATABASE_URL,
   },
 
   jwt: {
