@@ -3,7 +3,9 @@ import * as bcrypt from 'bcrypt';
 import * as jsonwebtoken from 'jsonwebtoken';
 
 import { IJwtPayload } from '../models/interfaces/token-payload.interface';
-import { config } from '../express/app';
+import { ConfigStaticService } from '../config/config-static';
+
+const config = ConfigStaticService.get();
 
 export const generateAccessToken = async (
   payload: IJwtPayload,

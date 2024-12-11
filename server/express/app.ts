@@ -13,7 +13,7 @@ import { ApiError } from './api-error/api-error';
 import passport from './middlewares/passport';
 import { notificationRouter } from './notifications/notifications.route';
 
-export const config = ConfigStaticService.get();
+const config = ConfigStaticService.get();
 
 if (process.env.EXPRESS_ENABLED === 'true') {
   const app = express();
