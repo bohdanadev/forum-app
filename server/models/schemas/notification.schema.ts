@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Types } from 'mongoose';
 import { UserInterface } from './post.schema';
 
 export interface INotificationDoc extends Document {
+  id?: string;
   recipient: UserInterface;
   actor: UserInterface;
   message: string;

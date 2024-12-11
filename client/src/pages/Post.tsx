@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import moment from 'moment';
 import styled from 'styled-components';
 
@@ -17,6 +17,7 @@ import { useMutateLike } from '../hooks/useLikeMutation';
 import { IPost } from '../interfaces/post.interface';
 import { authService } from '../services/auth.service';
 import AuthorCard from '../components/AuthorCard/AuthorCard';
+import { ROUTER_KEYS } from '../constants/app-keys';
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -142,6 +143,7 @@ const Post = () => {
   const [tags, setTags] = useState<string[]>([]);
   const { register, handleSubmit, setValue, watch, reset } =
     useForm<Pick<IPost, 'title' | 'imageUrl' | 'content' | 'tags'>>();
+  const navigate = useNavigate();
 
   const { mutate: mutatePost } = useMutatePost();
 
@@ -208,8 +210,16 @@ const Post = () => {
     setValue('tags', updatedTags);
   };
 
+  const setTagQuery = (tag: string | null) => {
+    navigate(`/${ROUTER_KEYS.POSTS}?${ROUTER_KEYS.TAG}=${tag}`);
+    // setSearchParams((params) => {
+    //   params.set('tag', tag!);
+    //   return params;
+    // });
+  };
+
   if (isLoading) return <h4>Loading...</h4>;
-  if (error) return <p>Failed to load post.</p>;
+  if (error) return <p>{user ? 'Failed to load post.' : 'Unauthorized.'}</p>;
 
   return (
     <PageContainer>
@@ -219,12 +229,14 @@ const Post = () => {
             <h1>{post?.title}</h1>
             <PostMeta>
               <span>{post?.author.username}</span>
-              <span>{moment(post?.createdAt).fromNow()}</span>
+              <span>{moment(post?.createdAt.toLocaleString()).fromNow()}</span>
             </PostMeta>
           </PostHeader>
           <TagsContainer>
             {post?.tags?.map((tag, index) => (
-              <span key={index}>{tag}</span>
+              <span onClick={() => setTagQuery(tag)} key={index}>
+                {tag}
+              </span>
             ))}
           </TagsContainer>
           <PostContent>

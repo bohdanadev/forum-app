@@ -1,10 +1,10 @@
-import { IUser } from '../models/interfaces/user.interface';
+import { IUserRes } from '../express/interfaces/auth/auth.res.interface';
 
 declare global {
   namespace Express {
-    interface User extends IUser {}
+    interface User extends IUserRes {}
     interface Request {
-      user?: IUser;
+      user?: IUserRes;
     }
   }
 }

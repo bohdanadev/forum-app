@@ -14,6 +14,6 @@ export const tryCatch =
     } catch (error) {
       res
         .status(res.statusCode < 400 ? 400 : res.statusCode || 500)
-        .json(error.message);
+        .json({ message: error.message });
     }
   };

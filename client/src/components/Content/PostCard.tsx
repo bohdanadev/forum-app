@@ -21,7 +21,7 @@ const PostCard: FC<IProps> = ({ post }) => {
       <PostWrap>
         <PostTitle>{post.title}</PostTitle>
         <PostInfo>
-          <div> {moment(post.createdAt).fromNow()} • </div>
+          <div> {moment(post.createdAt.toLocaleString()).fromNow()} • </div>
         </PostInfo>
         <PostContent>
           <img src={post.imageUrl} alt='postImage' />

@@ -7,7 +7,7 @@ export const API_KEYS = {
   COMMENTS: 'comments',
   NOTIFICATIONS: 'notifications',
   READ: 'read',
-  VERSION: 'v1.2',
+  VERSION: import.meta.env.VITE_API_VERSION,
 };
 
 export const QUERY_KEYS = {
@@ -29,4 +29,5 @@ export const ROUTER_KEYS = {
   NOTIFICATIONS: 'notifications',
   LIKE: 'like',
   AUTHOR_ID: 'authorId',
+  TAG: 'tag',
 };

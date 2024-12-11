@@ -7,7 +7,7 @@ export class NotificationsListQueryDto {
   @Max(20)
   @Min(1)
   @IsOptional()
-  limit?: number = 10;
+  limit?: number = 5;
 
   @Type(() => Number)
   @IsInt()

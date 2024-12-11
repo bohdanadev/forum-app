@@ -24,38 +24,9 @@ export const useCreateComment = () => {
         { queryKey: [QUERY_KEYS.COMMENTS] },
         variables.postId
       );
-
-      //   const { postId, parentCommentId } = variables;
-
-      //   queryClient.setQueryData<IComment[]>(
-      //     [QUERY_KEYS.COMMENTS, postId],
-      //     (oldComments = []) => {
-      //       if (!newComment) return oldComments;
-
-      //       if (parentCommentId) {
-      //         return oldComments.map((comment) => {
-      //           if (comment.id === parentCommentId) {
-      //             return {
-      //               ...comment,
-      //               replies: [...(comment.replies || []), newComment],
-      //             };
-      //           }
-      //           return comment;
-      //         });
-      //       }
-
-      //       return [...oldComments, newComment];
-      //     }
-      //   );
     },
     onError: (error, variables, context) => {
       console.error('Error creating comment:', error);
     },
-    // onSettled: (data, error, variables) => {
-    //   queryClient.invalidateQueries(
-    //     { queryKey: [QUERY_KEYS.COMMENTS] },
-    //     variables.postId
-    //   );
-    // },
   });
 };

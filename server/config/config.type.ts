@@ -23,6 +23,4 @@ export type PostgresConfig = {
 export type JwtConfig = {
   accessSecret: string;
   accessExpiresIn: number;
-  refreshSecret: string;
-  refreshExpiresIn: number;
 };

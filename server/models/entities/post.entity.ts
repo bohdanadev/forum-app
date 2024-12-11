@@ -9,6 +9,7 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
+
 import { User } from './user.entity';
 import { Like } from './like.entity';
 import { Comment } from './comment.entity';

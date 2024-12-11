@@ -1,7 +1,7 @@
-import styled from 'styled-components';
-import { useFetchNotifications } from '../hooks/useFetchNotifications';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import axios from 'axios';
+import styled from 'styled-components';
+
+import { useFetchNotifications } from '../hooks/useFetchNotifications';
 import { useMutateNotification } from '../hooks/useMutateNotification';
 
 interface NotificationItemProps {
@@ -25,13 +25,14 @@ const NotificationList = styled.ul`
   padding: 0;
 `;
 
-const NotificationItem = styled.li<NotificationItemProps>`
+const NotificationItem = styled.li.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isRead',
+})<NotificationItemProps>`
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 8px;
   margin-bottom: 10px;
-  background-color: ${({ isRead }: { isRead: boolean }) =>
-    isRead ? '#f9f9f9' : '#e6f7ff'};
+  background-color: ${({ isRead }) => (isRead ? '#f9f9f9' : '#e6f7ff')};
   display: flex;
   flex-direction: column;
 
@@ -80,7 +81,7 @@ const NotificationsPage = () => {
   }
   if (isError) return <p>Failed to load notifications.</p>;
 
-  if (!data || data.pages.length === 0) {
+  if (data?.pages.length === 0) {
     return <Container>No notifications to display.</Container>;
   }
 
@@ -105,10 +106,9 @@ const NotificationsPage = () => {
                 <Message>{notification.message}</Message>
                 <Meta>
                   <Actor>By: {notification.actor?.username || 'Unknown'}</Actor>{' '}
-                  | Post: {notification.post?.title || 'N/A'} |{' '}
-                  {notification.comment
-                    ? `Comment ID: ${notification.comment.id}`
-                    : 'No comment'}{' '}
+                  {notification?.post?.title
+                    ? `| Post: ${notification.post?.title}`
+                    : ''}{' '}
                   |{' '}
                   <CreatedAt>
                     {new Date(notification.createdAt).toLocaleString()}

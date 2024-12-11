@@ -1,9 +1,9 @@
 import { Like } from '../../models/entities/like.entity';
-import { UserResDto } from '../../models/dto/user.res.dto';
+import { UserResDto } from '../dto/user/user.res.dto';
 import { Comment } from '../../models/entities/comment.entity';
 
 export interface IPost {
-  id?: number;
+  id?: number | string;
   title: string;
   content: string;
   tags: string[];
@@ -12,5 +12,5 @@ export interface IPost {
   likes: number | Like[];
   comments: number | Comment[];
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt?: Date;
 }

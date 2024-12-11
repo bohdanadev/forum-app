@@ -1,47 +1,27 @@
 import * as mongoose from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 
-import { UserResDto } from '../../models/dto/user.res.dto';
 import { UserModel } from '../../models/schemas/user.schema';
-import { IUser } from '../../models/interfaces/user.interface';
-import { BaseUserReqDto } from '../../models/dto/user.req.dto';
-import { SignInReqDto } from '../../models/dto/signIn.req.dto';
 import { ApiError } from '../common/api-error';
-import { UserInterface } from '../../models/schemas/post.schema';
+import { IUser } from '../interfaces/user/user.interface';
+import { ISignIn } from '../interfaces/auth/signin.interface';
+import { IUserRes } from '../interfaces/auth/auth.res.interface';
+import { ISignUp } from '../interfaces/auth/signup.interface';
 
 class UserService {
-  public async getListModel() {
-    // await userRepository.findAll();
-    return await UserModel.find();
-  }
-
-  public async getListQuery(): Promise<any> {
-    // await userRepository.findAllQuery();
-    return await UserModel.db
-      .collection('users')
-      .find({}, { projection: { password: 0 } })
-      .toArray();
-  }
-
-  async getByParamsQuery(dto: SignInReqDto): Promise<IUser> {
+  async getByParamsQuery(dto: ISignIn): Promise<IUserRes> {
     const existingUser = await UserModel.findOne({
       $or: [{ email: dto.identifier }, { username: dto.identifier }],
-    }).populate({
-      path: 'notifications',
-      populate: [
-        { path: 'actor', select: 'id username avatarUrl' },
-        { path: 'post', select: 'id title' },
-        { path: 'comment', select: 'id content' },
-      ],
     });
+
     if (existingUser && (await existingUser.comparePassword(dto.password))) {
-      return existingUser.toJSON();
+      return existingUser.toJSON() as IUserRes;
     } else {
       throw new ApiError(`Wrong credentials`, HttpStatus.BAD_REQUEST);
     }
   }
 
-  public async getById(userId: string): Promise<IUser> {
+  public async getById(userId: string): Promise<IUserRes> {
     const user = await UserModel.findById(userId)
       .populate({
         path: 'notifications',
@@ -52,25 +32,16 @@ class UserService {
         ],
       })
       .exec();
-    return user.toJSON() as IUser;
-    // return await userRepository.findById(userId);
+    const transformedUser = {
+      ...user.toObject(),
+      id: user._id.toString(),
+    };
+    delete transformedUser._id;
+    delete transformedUser.password;
+    return transformedUser as IUserRes;
   }
-  // public async getByIdQuery(userId: string): Promise<UserInterface> {
-  //   const id = new mongoose.Types.ObjectId(userId);
-  // const user = await UserModel.aggregate([
-  //   { $match: { _id: id } },
-  //   {
-  //     $project: {
-  //       password: 0,
-  //     },
-  //   },
-  // ]);
 
-  // return user.length > 0 ? user[0] : null;
-  //  return await userRepository.findByIdQuery(userId);
-  // }
-
-  public async getByIdQuery(userId: string): Promise<UserInterface> {
+  public async getByIdQuery(userId: string): Promise<IUserRes> {
     const pipeline = [
       { $match: { _id: new mongoose.Types.ObjectId(userId) } },
       {
@@ -112,6 +83,15 @@ class UserService {
         },
       },
       {
+        $addFields: {
+          'notifications.actor': { $arrayElemAt: ['$notifications.actor', 0] },
+          'notifications.post': { $arrayElemAt: ['$notifications.post', 0] },
+          'notifications.comment': {
+            $arrayElemAt: ['$notifications.comment', 0],
+          },
+        },
+      },
+      {
         $group: {
           _id: '$_id',
           username: { $first: '$username' },
@@ -123,16 +103,17 @@ class UserService {
               message: '$notifications.message',
               isRead: '$notifications.isRead',
               createdAt: '$notifications.createdAt',
-              actor: { $arrayElemAt: ['$notifications.actor', 0] },
-              post: { $arrayElemAt: ['$notifications.post', 0] },
-              comment: { $arrayElemAt: ['$notifications.comment', 0] },
+              actor: '$notifications.actor',
+              post: '$notifications.post',
+              comment: '$notifications.comment',
             },
           },
         },
       },
       {
         $project: {
-          _id: 1,
+          _id: 0,
+          id: '$_id',
           username: 1,
           email: 1,
           avatarUrl: 1,
@@ -146,25 +127,24 @@ class UserService {
     if (!result.length) {
       throw new Error(`User with ID ${userId} not found`);
     }
+    const user = result[0];
 
-    return result[0];
+    return user as IUserRes;
   }
 
-  public async create(user: BaseUserReqDto): Promise<IUser> {
+  public async create(user: ISignUp): Promise<IUserRes> {
     const newUser = await UserModel.create(user);
     await newUser.save();
-    return newUser.toJSON();
+    const userJson = newUser.toJSON() as IUserRes;
+    return userJson;
   }
 
-  public async update(userId: string, dto: IUser): Promise<UserResDto> {
+  public async update(userId: string, dto: IUser): Promise<IUserRes> {
     return await UserModel.findByIdAndUpdate(userId, dto);
-
-    // return await userRepository.updateById(userId, dto);
   }
 
   public async delete(userId: string): Promise<void> {
     await UserModel.findByIdAndDelete(userId);
-    // await userRepository.deleteById(userId);
   }
 }
 

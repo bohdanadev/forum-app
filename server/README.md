@@ -1,73 +1,118 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Forum App
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Forum App is a full-stack web application that enables users to interact, share ideas, and engage in discussions. It provides robust features for authentication, user management, and content creation, along with real-time updates and notifications. The app leverages a combination of powerful back-end and front-end technologies to deliver a seamless user experience.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Key Features
 
-## Installation
+### Authentication and Authorization
+
+- Sign up and sign in functionality.
+- Authentication and authorization implemented using **Passport.js**.
+
+### User Management
+
+- View and update user profiles.
+- Delete accounts.
+
+### Post Management
+
+- Create, edit, and delete posts.
+- View a list of posts.
+- View post details and the author’s profile.
+- Search and filter functionality for posts.
+
+### Comment System
+
+- Multi-level comment threads.
+
+### Likes and Notifications
+
+- Like posts and comments.
+- Receive notifications for:
+  - Posts or comments being liked.
+  - Comments added to a user’s post or comment.
+- Mark notifications as read.
+
+---
+
+## Tech Stack
+
+### Backend
+
+#### **NestJS** (PostgreSQL)
+
+- **TypeORM** for object-relational mapping.
+- Native **SQL queries** for optimized database operations.
+
+#### **Express.js** (MongoDB)
+
+- **Mongoose** for schema-based modeling.
+- MongoDB **aggregate queries** for complex data operations.
+
+### Frontend
+
+#### **Vite + React**
+
+- Fast development environment powered by **Vite**.
+- **React** for building reusable UI components.
+
+#### Styling
+
+- **Styled-components** for component-level styling.
+
+#### State Management
+
+- **TanStack Query** for server state management and API interactions.
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+
+- **Node.js** (v16 or higher)
+- **PostgreSQL**
+- **MongoDB**
+- **Docker Desktop**
+- **npm** or **yarn** package manager
+
+### Backend Setup
+
+1. Clone the repository.
+2. Navigate to the `server` directory for NestJS and Express servers.
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Configure environment variables for both servers.
+
+5. Set up PostgreSQL and pgAdmin using Docker.
 
 ```bash
-$ npm install
+docker-compose up -d
 ```
 
-## Running the app
+Access pgAdmin at http://localhost:8080.
 
-```bash
-# development
-$ npm run start
+6. Start the servers:
+   ```bash
+   npm run start:dev
+   ```
 
-# watch mode
-$ npm run start:dev
+### Frontend Setup
 
-# production mode
-$ npm run start:prod
-```
+1. Navigate to the `client` directory.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+---

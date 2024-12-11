@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { DATA_SOURCE } from '../../utils/constants';
@@ -134,17 +134,17 @@ export class PostRepository extends Repository<Post> {
   ): Promise<Post> {
     const newPost = this.create({
       ...createPostDto,
-      author: userData,
+      author: {
+        id: userData.id,
+        username: userData.username,
+        avatarUrl: userData.avatarUrl,
+      },
     });
 
     return await this.save(newPost);
   }
 
-  public async getById(
-    userId: string,
-    postId: number,
-    em?: EntityManager,
-  ): Promise<Post> {
+  public async getById(postId: number, em?: EntityManager): Promise<Post> {
     const repo = em ? em.getRepository(Post) : this;
     const qb = repo.createQueryBuilder('post');
 
@@ -168,11 +168,7 @@ export class PostRepository extends Repository<Post> {
     return await qb.getOneOrFail();
   }
 
-  public async getByIdQuery(
-    userId: string,
-    postId: number,
-    em?: EntityManager,
-  ): Promise<Post> {
+  public async getByIdQuery(postId: number, em?: EntityManager): Promise<Post> {
     const queryRunner = em || this.dataSource.createQueryRunner();
 
     const sql = `
@@ -213,10 +209,6 @@ export class PostRepository extends Repository<Post> {
 
     const result = await queryRunner.query(sql, params);
 
-    if (!result || result.length === 0) {
-      throw new NotFoundException('Post not found');
-    }
-
     return result[0];
   }
 
@@ -231,10 +223,6 @@ export class PostRepository extends Repository<Post> {
       .andWhere('author.id = :userId', { userId })
       .getOne();
 
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
-
     return await this.save({ ...post, ...updatePostDto });
   }
 
@@ -244,10 +232,6 @@ export class PostRepository extends Repository<Post> {
       .where('post.id = :postId', { postId })
       .andWhere('author.id = :userId', { userId })
       .getOne();
-
-    if (!post) {
-      throw new NotFoundException('Post not found');
-    }
     await this.remove(post);
   }
 }

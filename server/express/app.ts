@@ -56,14 +56,14 @@ app.use(
 );
 
 app.listen(port, host, async () => {
-  //   await myDataSource
-  //     .initialize()
-  //     .then(() => {
-  //       console.log('Data Source has been initialized!');
-  //     })
-  //     .catch((err) => {
-  //       console.error('Error during Data Source initialization:', err);
-  //     });
+  // await myDataSource
+  //   .initialize()
+  //   .then(() => {
+  //     console.log('Data Source has been initialized!');
+  //   })
+  //   .catch((err) => {
+  //     console.error('Error during Data Source initialization:', err);
+  //   });
   await mongoose
     .connect(mongoUrl)
     .then(() => console.log('Connected to MongoDB'))

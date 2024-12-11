@@ -4,16 +4,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { plainToInstance } from 'class-transformer';
 
 import { CommentRepository } from './comments.repository';
 import { Post } from '../../models/entities/post.entity';
 import { PostRepository } from '../posts/post.repository';
-import { User } from '../../models/entities/user.entity';
 import { Comment } from '../../models/entities/comment.entity';
 import { LikeRepository } from '../likes/like.repository';
 import { NotificationService } from '../notifications/notifications.service';
 import { CommentResponseDto } from '../../models/dto/comment/comments.res.dto';
-import { plainToInstance } from 'class-transformer';
+import { IUser } from '../../models/interfaces/user.interface';
 
 @Injectable()
 export class CommentService {
@@ -28,7 +28,7 @@ export class CommentService {
 
   async createComment(
     postId: number,
-    author: User,
+    author: IUser,
     content: string,
     parentCommentId?: number,
   ): Promise<CommentResponseDto> {
@@ -53,7 +53,11 @@ export class CommentService {
 
     const newComment = this.commentRepository.create({
       content,
-      author,
+      author: {
+        id: author.id,
+        username: author.username,
+        avatarUrl: author.avatarUrl,
+      },
       post,
       parentComment,
     });
@@ -83,24 +87,20 @@ export class CommentService {
     });
   }
 
-  async getPostCommentsWithReplies(postId: number) {
+  async getPostCommentsWithReplies(
+    postId: number,
+  ): Promise<CommentResponseDto[]> {
     return this.commentRepository.findAllCommentsWithReplies(postId);
   }
 
-  async getPostCommentsWithRepliesQuery(postId: number) {
+  async getPostCommentsWithRepliesQuery(
+    postId: number,
+  ): Promise<CommentResponseDto[]> {
     return this.commentRepository.findAllCommentsWithRepliesQuery(postId);
   }
 
-  async getCommentsForPost(postId: number): Promise<Comment[]> {
-    return this.commentRepository.findCommentsByPost(postId);
-  }
-
-  async getRepliesForComment(commentId: number): Promise<Comment[]> {
-    return this.commentRepository.findReplies(commentId);
-  }
-
   public async like(
-    userData: User,
+    userData: IUser,
     postId: number,
     commentId: number,
   ): Promise<number> {
@@ -130,7 +130,11 @@ export class CommentService {
 
     const newLike = this.likeRepository.create({
       comment,
-      author: userData,
+      author: {
+        id: userData.id,
+        username: userData.username,
+        avatarUrl: userData.avatarUrl,
+      },
       post: null,
     });
     await this.likeRepository.save(newLike);

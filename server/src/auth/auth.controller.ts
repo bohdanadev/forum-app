@@ -1,25 +1,20 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
   UseGuards,
   Request,
-  UseInterceptors,
-  ClassSerializerInterceptor,
   Response,
   HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 
+import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { Public } from './public.decorator';
-import { JwtAuthGuard } from './jwt-auth.guard';
+import { UsersService } from '../users/users.service';
+import { SignUpReqDto } from '../../models/dto/user/signUp.req.dto';
 import { CurrentUser } from './current-user.decorator';
 import { IUser } from '../../models/interfaces/user.interface';
-import { UsersService } from '../users/users.service';
-import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
-import { UserResDto } from '../../models/dto/user.res.dto';
 
 @Controller('api/auth')
 export class AuthController {
@@ -37,21 +32,18 @@ export class AuthController {
 
   @Post('signup')
   @Public()
-  async create(@Body() createUserDto: SignUpReqDto): Promise<UserResDto> {
+  async create(@Body() createUserDto: SignUpReqDto): Promise<void> {
     return this.userService.create(createUserDto);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(@Request() req, @Response() res) {
-    // req.logOut();
-    res.status(HttpStatus.OK).send({ message: 'Logged out successfully' });
-  }
-
-  @Get('profile')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async getProfile(@CurrentUser() user: IUser) {
-    return user;
+  logout(
+    @Request() req: any,
+    @Response() res: any,
+    @CurrentUser() user: IUser,
+  ) {
+    if (user) {
+      res.status(HttpStatus.OK).send({ message: 'Logged out successfully' });
+    }
   }
 }

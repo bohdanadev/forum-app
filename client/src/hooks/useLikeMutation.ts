@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 
 import { QUERY_KEYS } from '../constants/app-keys';
 import { postService } from '../services/post.service';
@@ -28,9 +29,14 @@ export const useMutateLike = () => {
         });
       } else {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.POSTS, variables.postId],
+          queryKey: [QUERY_KEYS.POSTS, variables.postId.toString()],
         });
       }
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error?.response?.data?.message || error.message || 'An error occurred';
+      toast.error(errorMessage);
     },
   });
 };

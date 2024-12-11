@@ -46,9 +46,9 @@ const Sidebar = () => {
         <SidebarItem>Notifications</SidebarItem>
         <Notification>{unreadNotificationsCount || ''}</Notification>
       </NotificationsContainer>
-      {/* <Link to={`${ROUTER_KEYS.USERS}/${currentUser.id}`}> */}
+
       <SidebarItem onClick={goToProfile}>Profile</SidebarItem>
-      {/* </Link> */}
+
       <SidebarItem onClick={() => setAuthorIdQuery(currentUser?.id)}>
         My posts
       </SidebarItem>

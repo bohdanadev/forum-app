@@ -32,7 +32,7 @@ export class NotificationRepository extends Repository<Notification> {
     userId: string,
     query: NotificationsListQueryDto,
   ): Promise<[Notification[], number]> {
-    const limit = query.limit || 10;
+    const limit = query.limit || 5;
     const offset = query.offset || 0;
 
     const notifications = await this.query(

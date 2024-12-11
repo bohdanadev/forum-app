@@ -1,24 +1,26 @@
 import { Request, Response } from 'express';
 import { HttpStatus } from '@nestjs/common';
 
-import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPost } from '../../models/interfaces/post.interface';
 import { postService } from './posts.service';
-import { PostsListResDto } from '../../models/dto/post/posts.res.dto';
 import { UserMapper } from '../../utils/user-mapper';
+import { IPostsListRes } from '../interfaces/post/posts.res.interface';
+import { IPostsListQuery } from '../interfaces/post/posts.query.interface';
+import { IPostDoc } from '../../models/schemas/post.schema';
 
 class PostController {
-  async getList(
-    req: Request,
-    res: Response,
-  ): Promise<Response<PostsListResDto>> {
-    const query = req.query as PostsListQueryDto;
+  async getList(req: Request, res: Response): Promise<Response<IPostsListRes>> {
+    const query = req.query as IPostsListQuery;
     const [posts, total] = await postService.getList(query);
     const data = posts.map((post) => ({
       ...post.toJSON(),
       likes: post.likes.length,
       comments: post.comments.length,
-      author: UserMapper.toUserPublicData(post.author),
+      author: {
+        id: post.author._id.toString(),
+        username: post.author.username,
+        avatarUrl: post.author.avatarUrl,
+      },
     }));
     return res.status(HttpStatus.OK).json({ data, total, ...query });
   }
@@ -26,8 +28,8 @@ class PostController {
   async getListQuery(
     req: Request,
     res: Response,
-  ): Promise<Response<PostsListResDto>> {
-    const query = req.query as PostsListQueryDto;
+  ): Promise<Response<IPostsListRes>> {
+    const query = req.query as IPostsListQuery;
     const [posts, total] = await postService.getListQuery(query);
     const data = posts.map((post) => ({
       ...post,
@@ -45,7 +47,7 @@ class PostController {
     return res.status(HttpStatus.OK).json({ data, total, ...query });
   }
 
-  async getPostById(req: Request, res: Response): Promise<Response<IPost>> {
+  async getPostById(req: Request, res: Response): Promise<Response<IPostDoc>> {
     const { id } = req.params;
     const user = req.user;
     const post = (await postService.getById(user, id)).toJSON();
@@ -81,13 +83,13 @@ class PostController {
     });
   }
 
-  async createPost(req: Request, res: Response): Promise<Response<IPost>> {
+  async createPost(req: Request, res: Response): Promise<Response<IPostDoc>> {
     const newPost = await postService.create(req.user, req.body);
 
     return res.status(HttpStatus.CREATED).json(newPost);
   }
 
-  async updatePost(req: Request, res: Response): Promise<Response<IPost>> {
+  async updatePost(req: Request, res: Response): Promise<Response<IPostDoc>> {
     const { id } = req.params;
     const updatedPost = await postService.update(id, req.body);
 

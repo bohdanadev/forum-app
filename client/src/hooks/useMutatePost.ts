@@ -22,11 +22,11 @@ const useMutatePost = () => {
     onSuccess: (data) => {
       if (data && 'id' in data) {
         queryClient.invalidateQueries({
-          queryKey: [QUERY_KEYS.POSTS, data.id],
+          queryKey: [QUERY_KEYS.POSTS, data.id?.toString()],
         });
 
         queryClient.setQueryData<IPost[]>(
-          [QUERY_KEYS.POSTS, data.id],
+          [QUERY_KEYS.POSTS, data.id?.toString()],
           (oldData) =>
             oldData
               ? {
@@ -36,9 +36,9 @@ const useMutatePost = () => {
               : oldData
         );
       } else {
-        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
-        toast.success('Post deleted!');
         navigate(`/${ROUTER_KEYS.POSTS}`);
+        toast.success('Post deleted!');
+        queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.POSTS] });
       }
     },
     onError: () => {

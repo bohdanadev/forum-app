@@ -1,59 +1,38 @@
 import { HttpStatus } from '@nestjs/common';
 import { Request, Response } from 'express';
+
 import { userService } from './users.service';
-import { UserResDto } from '../../models/dto/user.res.dto';
-import { IUser } from '../../models/interfaces/user.interface';
+import { IUserRes } from '../interfaces/auth/auth.res.interface';
+import { IUser } from '../interfaces/user/user.interface';
 import { UserMapper } from '../../utils/user-mapper';
 
 class UserController {
-  public async getList(
-    req: Request,
-    res: Response,
-  ): Promise<Response<UserResDto[]>> {
-    const result = await userService.getListModel();
-    return res.status(HttpStatus.OK).json(result);
-  }
-
-  public async getListQuery(
-    req: Request,
-    res: Response,
-  ): Promise<Response<UserResDto[]>> {
-    const result = await userService.getListQuery();
-    return res.status(HttpStatus.OK).json(result);
-  }
-
   public async getUserById(
     req: Request,
     res: Response,
-  ): Promise<Response<UserResDto>> {
+  ): Promise<Response<IUserRes>> {
     const id = req.params.id;
     const userId = req.user.id as string;
     const user = await userService.getById(id);
-    const result =
-      id === userId
-        ? UserMapper.toResponseDTO(user)
-        : UserMapper.toUserPublicData(user);
+    const result = id === userId ? user : UserMapper.toUserPublicData(user);
     return res.json(result);
   }
 
   public async getUserByIdQuery(
     req: Request,
     res: Response,
-  ): Promise<Response<UserResDto>> {
+  ): Promise<Response<IUserRes>> {
     const id = req.params.id;
     const userId = req.user.id as string;
     const user = await userService.getByIdQuery(id);
-    const result =
-      id === userId
-        ? UserMapper.toResponseDTO({ ...user, id: user._id.toString() })
-        : UserMapper.toUserPublicData({ ...user, id: user._id.toString() });
+    const result = id === userId ? user : UserMapper.toUserPublicData(user);
     return res.json(result);
   }
 
   public async updateUserData(
     req: Request,
     res: Response,
-  ): Promise<Response<UserResDto>> {
+  ): Promise<Response<IUserRes>> {
     const userId = req.user.id as string;
     const dto = req.body as IUser;
     const updatedUserData = await userService.update(userId, dto);

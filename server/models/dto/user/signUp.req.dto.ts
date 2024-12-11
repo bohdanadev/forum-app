@@ -7,7 +7,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import { IsMatch } from '../../validation/is-match.constraint';
+import { IsMatch } from '../../../validation/is-match.constraint';
 
 export class SignUpReqDto {
   @IsString()

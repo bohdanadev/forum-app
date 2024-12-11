@@ -1,19 +1,20 @@
-import { UserResDto } from '../models/dto/user.res.dto';
-import { IUser } from '../models/interfaces/user.interface';
+import { IUserRes } from '../express/interfaces/auth/auth.res.interface';
+import { IUser } from '../express/interfaces/user/user.interface';
+import { UserResDto } from '../models/dto/user/user.res.dto';
+
+export type UserPublicData = Omit<UserResDto, 'email' | 'notifications'>;
 
 export class UserMapper {
-  public static toResponseDTO(data: IUser): UserResDto {
+  public static toResponseDTO(data: IUser): IUserRes {
     return {
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      avatarUrl: data.avatarUrl,
-      createdAt: data.createdAt,
-      notifications: data.notifications,
-    };
+      ...data,
+      id: data._id.toString(),
+      _id: undefined,
+      password: undefined,
+    } as IUserRes;
   }
 
-  public static toUserPublicData(data: IUser): Partial<UserResDto> {
+  public static toUserPublicData(data: UserResDto | IUserRes): UserPublicData {
     return {
       id: data.id,
       username: data.username,

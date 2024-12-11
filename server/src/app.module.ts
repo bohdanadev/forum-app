@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
+
+// import { MongooseModule } from '@nestjs/mongoose';
+// import { Config, MongoConfig } from 'config/config.type';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
 import { AuthModule } from './auth/auth.module';
 import configuration from '../config/configuration';
 import { PostgresModule } from './postgres/postgres.module';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Config, MongoConfig } from 'config/config.type';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { myDataSource } from '../ormconfig';
 import { AuthService } from 'auth/auth.service';
-import { JwtModule } from '@nestjs/jwt';
 import { CommentsModule } from './comments/comments.module';
 import { NotificationsModule } from 'notifications/notifications.module';
 
@@ -38,9 +37,7 @@ import { NotificationsModule } from 'notifications/notifications.module';
     CommentsModule,
     NotificationsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, AuthService],
+
+  providers: [AuthService],
 })
-export class AppModule {
-  // constructor(private dataSource: DataSource) {}
-}
+export class AppModule {}

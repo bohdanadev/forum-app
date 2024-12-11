@@ -4,4 +4,5 @@ export interface IComment {
   userId: string;
   postId?: number;
   commentId?: string;
+  replies?: IComment[];
 }

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+
 import { userController } from './users.controller';
 import userValidationSchema from '../../validation/user.joi.schema';
 import { tryCatch } from '../middlewares/tryCatch.middleware';
@@ -9,10 +10,6 @@ import { UserModel } from '../../models/schemas/user.schema';
 
 const router = Router();
 export const commonMiddleware = new CommonMiddleware(UserModel);
-
-router.get('/v1.1', tryCatch(userController.getList));
-
-router.get('/v1.2', tryCatch(userController.getListQuery));
 
 router.get(
   '/v1.1/:id',
@@ -37,7 +34,6 @@ router.put(
 router.delete(
   '/',
   authMiddleware.authCheck,
-  commonMiddleware.isExist<IUser>('username'),
   tryCatch(userController.deleteUserProfile),
 );
 

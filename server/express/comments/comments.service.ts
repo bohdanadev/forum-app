@@ -6,17 +6,18 @@ import { ApiError } from '../common/api-error';
 import { PostModel } from '../../models/schemas/post.schema';
 import { transformObjectIdRecursive } from '../../utils/helpers';
 import { notificationService } from '../notifications/notifications.service';
+import { IUserRes } from '../interfaces/auth/auth.res.interface';
 
 class CommentService {
   async createComment(
-    userId: string,
+    user: IUserRes,
     content: string,
     postId: string,
     parentCommentId?: string,
   ): Promise<IComment> {
     const comment = new CommentModel({
       content,
-      author: new Types.ObjectId(userId),
+      author: new Types.ObjectId(user.id),
       post: new Types.ObjectId(postId),
       parentComment: parentCommentId
         ? new Types.ObjectId(parentCommentId)
@@ -32,11 +33,11 @@ class CommentService {
 
       const parentComment = await CommentModel.findById(parentCommentId);
 
-      if (parentComment && parentComment.author.toString() !== userId) {
+      if (parentComment && parentComment.author.toString() !== user.id) {
         await notificationService.createNotification(
           parentComment.author.toString(),
-          userId,
-          `${content} replied to your comment`,
+          user.id,
+          `${user.username} replied to your comment`,
           postId,
           parentCommentId,
         );
@@ -46,11 +47,11 @@ class CommentService {
         $push: { comments: comment._id },
       });
 
-      if (post && post.author.toString() !== userId) {
+      if (post && post.author.toString() !== user.id) {
         await notificationService.createNotification(
           post.author.toString(),
-          userId,
-          `${content} commented on your post`,
+          user.id,
+          `${user.username} commented on your post`,
           postId,
         );
       }
@@ -114,33 +115,31 @@ class CommentService {
     return comments.map(transformObjectIdRecursive);
   }
 
-  async likeComment(commentId: string, userId: string): Promise<number> {
+  async likeComment(commentId: string, user: IUserRes): Promise<number> {
     const comment = await CommentModel.findById(commentId);
     if (!comment) {
       throw new ApiError('Comment not found', HttpStatus.NOT_FOUND);
     }
-    if (comment.author.toString() === userId) {
+    if (comment.author.toString() === user.id) {
       throw new ApiError(
         'You cannot like your own comment',
         HttpStatus.CONFLICT,
       );
     }
 
-    const hasLiked = comment.likes.includes(new Types.ObjectId(userId));
+    const hasLiked = comment.likes.includes(new Types.ObjectId(user.id));
     if (hasLiked) {
-      // Unlike the comment
-      comment.likes = comment.likes.filter((id) => id.toString() !== userId);
+      comment.likes = comment.likes.filter((id) => id.toString() !== user.id);
     } else {
-      // Like the comment
-      comment.likes.push(new Types.ObjectId(userId));
+      comment.likes.push(new Types.ObjectId(user.id));
     }
 
     await comment.save();
     await notificationService.createNotification(
-      comment.author.id,
-      userId,
-      `${comment.author.username} liked your comment: "${comment.content}"`,
-
+      comment.author.toString(),
+      user.id,
+      `${user.username} liked your comment: "${comment.content}"`,
+      comment.post.toString(),
       comment.id,
     );
     return comment.likes.length;

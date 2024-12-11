@@ -1,5 +1,6 @@
-import { authMiddleware } from './../middlewares/auth.middleware';
 import { Router } from 'express';
+
+import { authMiddleware } from './../middlewares/auth.middleware';
 import { authController } from './auth.controller';
 import userValidationSchema from '../../validation/user.joi.schema';
 import { tryCatch } from '../middlewares/tryCatch.middleware';

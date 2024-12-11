@@ -33,6 +33,7 @@ export const useMutateNotification = () => {
       });
 
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.NOTIFICATIONS] });
     },
 
     onError: (error) => {

@@ -1,13 +1,18 @@
 import mongoose, { Schema, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
+import { INotificationDoc } from './notification.schema';
+
 export interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
   avatarUrl: string;
-  notifications: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+  notifications?: Types.ObjectId[] | INotificationDoc[];
   comparePassword(plainPassword: string): Promise<boolean>;
+  id?: string;
 }
 
 export const userSchema = new mongoose.Schema<UserDocument>(

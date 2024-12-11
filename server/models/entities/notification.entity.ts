@@ -11,7 +11,6 @@ import { Expose } from 'class-transformer';
 import { User } from './user.entity';
 import { Post } from './post.entity';
 import { Comment } from './comment.entity';
-import { UserResDto } from '../dto/user.res.dto';
 
 @Entity()
 export class Notification {
@@ -33,7 +32,7 @@ export class Notification {
 
   @ManyToOne(() => User, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'actorId' })
-  actor: Partial<UserResDto>;
+  actor: User;
 
   @ManyToOne(() => Post, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'postId' })

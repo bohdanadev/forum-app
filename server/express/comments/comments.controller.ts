@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 
 import { IComment } from '../../models/schemas/comment.schema';
 import { commentService } from './comments.service';
-import { UserMapper } from '../../utils/user-mapper';
+import { IUserRes } from '../interfaces/auth/auth.res.interface';
 
 class CommentController {
   async createComment(
@@ -12,10 +12,10 @@ class CommentController {
   ): Promise<Response<IComment>> {
     const { id: postId } = req.params;
     const { content, parentCommentId } = req.body;
-    const userId = req.user.id;
+    const user = req.user as IUserRes;
 
     const comment = await commentService.createComment(
-      userId,
+      user,
       content,
       postId,
       parentCommentId,
@@ -23,7 +23,11 @@ class CommentController {
 
     return res.status(HttpStatus.CREATED).json({
       ...comment.toJSON(),
-      author: UserMapper.toUserPublicData(comment.author),
+      author: {
+        id: comment.author.id,
+        username: comment.author.username,
+        avatarUrl: comment.author.avatarUrl,
+      },
     });
   }
 
@@ -48,9 +52,9 @@ class CommentController {
 
   async likeComment(req: Request, res: Response): Promise<Response<number>> {
     const { commentId } = req.body;
-    const userId = req.user.id;
+    const user = req.user as IUserRes;
 
-    const likesCount = await commentService.likeComment(commentId, userId);
+    const likesCount = await commentService.likeComment(commentId, user);
 
     return res.status(HttpStatus.OK).json({ likes: likesCount });
   }

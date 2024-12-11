@@ -1,18 +1,16 @@
 import { PipelineStage, Types } from 'mongoose';
 import { HttpStatus } from '@nestjs/common';
 
-import {
-  INotificationDoc,
-  NotificationModel,
-} from '../../models/schemas/notification.schema';
+import { NotificationModel } from '../../models/schemas/notification.schema';
 import { ApiError } from '../common/api-error';
+import { UserModel } from '../../models/schemas/user.schema';
 
 class NotificationService {
   public async createNotification(
     recipientId: string,
     actorId: string,
     message: string,
-    postId?: string,
+    postId: string,
     commentId?: string,
   ) {
     if (recipientId === actorId) {
@@ -24,7 +22,11 @@ class NotificationService {
       actor: new Types.ObjectId(actorId),
       message,
       post: new Types.ObjectId(postId),
-      comment: new Types.ObjectId(commentId),
+      comment: commentId ? new Types.ObjectId(commentId) : null,
+    });
+
+    await UserModel.findByIdAndUpdate(recipientId, {
+      $push: { notifications: notification._id },
     });
 
     return await notification.save();
@@ -33,7 +35,7 @@ class NotificationService {
   public async getNotificationsForUser(
     userId: string,
     { limit, offset },
-  ): Promise<[INotificationDoc[], number]> {
+  ): Promise<[any, number]> {
     const notifications = await NotificationModel.find({
       recipient: new Types.ObjectId(userId),
     })
@@ -43,7 +45,7 @@ class NotificationService {
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
-      .exec();
+      .lean();
 
     const total = await NotificationModel.countDocuments({
       recipient: new Types.ObjectId(userId),

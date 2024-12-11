@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config/dist/config.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config/dist/config.service';
+
 import { Config, JwtConfig } from '../../config/config.type';
-import { SignInReqDto } from '../../models/dto/signIn.req.dto';
+import { SignInReqDto } from '../../models/dto/user/signIn.req.dto';
 import { UsersService } from '../users/users.service';
-import { UserResDto } from '../../models/dto/user.res.dto';
-import { IUser } from '../../models/interfaces/user.interface';
+import { UserResDto } from '../../models/dto/user/user.res.dto';
+import { AuthResDto } from '../../models/dto/user/auth.res.dto';
 
 @Injectable()
 export class AuthService {
@@ -20,14 +21,14 @@ export class AuthService {
   public async validateUser(dto: SignInReqDto): Promise<UserResDto> {
     const user = await this.userService.findOne(dto);
     if (user) {
+      console.log('Validated:', user);
       return user;
     }
 
     return null;
   }
 
-  async login(user: IUser) {
-    console.log('LOGIN_POSTGRES_USER', user);
+  async login(user: UserResDto): Promise<AuthResDto> {
     const payload = { username: user.username, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload, {

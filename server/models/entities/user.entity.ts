@@ -1,4 +1,3 @@
-import { Exclude, Expose } from 'class-transformer';
 import {
   Column,
   CreateDateColumn,
@@ -8,6 +7,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
+
 import { Post } from './post.entity';
 import { Comment } from './comment.entity';
 import { Like } from './like.entity';
@@ -44,17 +45,20 @@ export class User {
   updatedAt: Date;
 
   @OneToMany(() => Post, (post) => post.author, { cascade: true })
+  @Expose()
   posts: Post[];
 
   @OneToMany(() => Comment, (comment) => comment.author, { cascade: true })
+  @Expose()
   comments: Comment[];
 
   @OneToMany(() => Like, (like) => like.author, { cascade: true })
+  @Expose()
   likes: Like[];
 
-  @Expose()
   @OneToMany(() => Notification, (notification) => notification.recipient, {
     cascade: true,
   })
+  @Expose()
   notifications: Notification[];
 }

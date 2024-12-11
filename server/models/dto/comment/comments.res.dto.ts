@@ -25,12 +25,12 @@ export class CommentResponseDto {
 
   @Expose()
   @Type(() => Like)
-  likes: Like[];
+  likes?: Like[];
 
   @Expose()
   parentCommentId?: number;
 
   @Expose()
   @Type(() => CommentResponseDto)
-  replies: CommentResponseDto[];
+  replies?: CommentResponseDto[];
 }

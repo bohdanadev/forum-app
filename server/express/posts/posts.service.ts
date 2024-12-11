@@ -5,11 +5,12 @@ import { ApiError } from '../common/api-error';
 import { CreatePostDto } from '../../models/dto/post/create-post.dto';
 import { PostsListQueryDto } from '../../models/dto/post/posts-query.dto';
 import { IPostDoc, PostModel } from '../../models/schemas/post.schema';
-import { IUser } from '../../models/interfaces/user.interface';
 import { notificationService } from '../notifications/notifications.service';
+import { IPostsListQuery } from '../interfaces/post/posts.query.interface';
+import { IUserRes } from '../interfaces/auth/auth.res.interface';
 
 class PostService {
-  async getList(query: PostsListQueryDto): Promise<[IPostDoc[], number]> {
+  async getList(query: IPostsListQuery): Promise<[IPostDoc[], number]> {
     const filterObj: FilterQuery<IPostDoc> = {};
 
     if (query.authorId) {
@@ -100,11 +101,11 @@ class PostService {
     return [posts, totalCount];
   }
 
-  async getById(user: IUser, id: string): Promise<IPostDoc | null> {
+  async getById(user: IUserRes, id: string): Promise<IPostDoc | null> {
     return PostModel.findById(id).populate('author');
   }
 
-  async getByIdQuery(user: IUser, id: string): Promise<IPostDoc | null> {
+  async getByIdQuery(user: IUserRes, id: string): Promise<IPostDoc | null> {
     const objectId = new Types.ObjectId(id);
     const result = await PostModel.aggregate([
       { $match: { _id: objectId } },
@@ -144,8 +145,8 @@ class PostService {
     return result.length > 0 ? (result[0] as IPostDoc) : null;
   }
 
-  async create(user: any, data: CreatePostDto): Promise<IPostDoc> {
-    const newPost = new PostModel({ ...data, author: user });
+  async create(user: IUserRes, data: CreatePostDto): Promise<IPostDoc> {
+    const newPost = new PostModel({ ...data, author: user.id });
     return newPost.save();
   }
 
@@ -156,7 +157,7 @@ class PostService {
     });
   }
 
-  async like(userData: IUser, id: string): Promise<number> {
+  async like(userData: IUserRes, id: string): Promise<number> {
     const { id: userId, username } = userData;
     const post = await PostModel.findById(id);
 

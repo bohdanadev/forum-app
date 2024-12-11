@@ -1,36 +1,32 @@
 import {
   ConflictException,
-  Inject,
   Injectable,
   NotFoundException,
-  OnModuleInit,
+  //  OnModuleInit,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { Connection, Model } from 'mongoose';
-import { User } from '../../models/entities/user.entity';
-import { InjectConnection, InjectModel } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { DataSource, Repository } from 'typeorm';
 import { plainToInstance } from 'class-transformer';
-import { SignUpReqDto } from '../../models/dto/signUp.req.dto';
-import { UserResDto } from '../../models/dto/user.res.dto';
-import { IUser } from '../../models/interfaces/user.interface';
-import { UserDocument } from '../../models/schemas/user.schema';
-import { SignInReqDto } from '../../models/dto/signIn.req.dto';
+
+// import { Connection, Model } from 'mongoose';
+// import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+// import mongoose from 'mongoose';
+
+import { SignUpReqDto } from '../../models/dto/user/signUp.req.dto';
+import { User } from '../../models/entities/user.entity';
+import { UserResDto } from '../../models/dto/user/user.res.dto';
+import { SignInReqDto } from '../../models/dto/user/signIn.req.dto';
 import { comparePassword } from '../../utils/helpers';
+import { UserRepository } from './user.repository';
+import { UserUpdateReqDto } from '../../models/dto/user/user-update.req.dto';
 
 @Injectable()
 export class UsersService {
   // export class UsersService implements OnModuleInit {
   // private db: Connection['db'];
-  private userRepository: Repository<User>;
   constructor(
+    private readonly userRepository: UserRepository,
     // @InjectModel('User') private userModel: Model<UserDocument>,
     // @InjectConnection() private readonly connection: Connection,
-    @Inject('DATA_SOURCE') private dataSource: DataSource,
-  ) {
-    this.userRepository = this.dataSource.getRepository(User);
-  }
+  ) {}
 
   // onModuleInit() {
   //   throw new Error('Method not implemented.');
@@ -40,72 +36,18 @@ export class UsersService {
   //   this.db = this.connection.db;
   // }
 
-  // async findAll(): Promise<User[]> {
-  //   await this.userModel.find().exec();
-  //   const users = await this.userRepository.find();
-  //   return plainToInstance(User, users, { excludeExtraneousValues: true });
-  // }
-  // async findAllQuery(): Promise<any> {
-  //   await this.db
-  //     .collection('users')
-  //     .find({}, { projection: { password: 0 } })
-  //     .toArray();
-  //   const query = 'SELECT * FROM "users"';
-  //   const users = await this.dataSource.query(query);
-  //   return plainToInstance(User, users, { excludeExtraneousValues: true });
-  // }
-
-  async create(createUserDto: SignUpReqDto): Promise<UserResDto> {
-    //Mongo
-
-    // const existingUser = await this.userModel
-    //   .findOne({ email: createUserDto.email })
-    //   .exec();
-    // if (existingUser) {
-    //   throw new ConflictException('Email already exists');
-    // }
-    // const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    // const createdUser = new this.userModel({
-    //   ...createUserDto,
-    //   password: hashedPassword,
-    // });
-
-    // const newUser = await createdUser.save();
-    // console.log(newUser.toJSON());
-
-    //POSTGRES
-    const user = await this.userRepository.findOneBy({
-      email: createUserDto.email,
-    });
+  async create(createUserDto: SignUpReqDto): Promise<void> {
+    const user = await this.userRepository.findOneByEmail(createUserDto.email);
     if (user) {
       throw new ConflictException('Email already exists');
     }
-    const password = await bcrypt.hash(createUserDto.password, 10);
-    const userEntity = this.userRepository.create({
-      ...createUserDto,
-      password,
-    });
-    const savedUser = await this.userRepository.save(userEntity);
 
-    return plainToInstance(User, savedUser, { excludeExtraneousValues: true });
+    await this.userRepository.createUser(createUserDto);
   }
 
-  async findOne(dto: SignInReqDto): Promise<any> {
-    // Mongo
-    // const existingUser = await this.userModel.findOne({
-    //   $or: [{ email: dto.identifier }, { username: dto.identifier }],
-    // });
-    // if (existingUser && (await existingUser.comparePassword(dto.password))) {
-    //   // return existingUser.toJSON();
-    //   console.log(existingUser.toJSON());
-    // } else {
-    //   throw new NotFoundException(`Wrong credentials`);
-    // }
-
-    // Postgres
-    const foundUser = await this.userRepository.findOne({
-      where: [{ username: dto.identifier }, { email: dto.identifier }],
-    });
+  async findOne(dto: SignInReqDto): Promise<UserResDto> {
+    const foundUser =
+      await this.userRepository.findOneByUsernameOrEmailOrFail(dto);
     if (
       foundUser &&
       (await comparePassword(dto.password, foundUser.password))
@@ -118,128 +60,41 @@ export class UsersService {
     }
   }
 
-  async findOneById(id: string): Promise<IUser> {
-    // Mongo
-    // const existingUser = await this.userModel.findById(id);
-    // if (!existingUser) {
-    //   throw new NotFoundException(`User not found`);
-    // }
-    // console.log(existingUser.toJSON());
+  async findOneById(id: string): Promise<UserResDto> {
+    const userWithNotificationCount =
+      await this.userRepository.findOneUserByIdWithNotificationsCount(id);
 
-    // Postgres
-    const query = `
-    SELECT 
-      users.*, 
-      COALESCE(
-        json_agg(
-          jsonb_build_object(
-            'id', notifications.id,
-            'message', notifications.message,
-            'isRead', notifications.is_read,
-            'createdAt', notifications.created_at,
-            'actor', jsonb_build_object(
-              'id', actor.id,
-              'username', actor.username,
-              'avatarUrl', actor.avatar_url
-            ),
-            'post', jsonb_build_object(
-              'id', post.id,
-              'title', post.title
-            ),
-            'comment', jsonb_build_object(
-              'id', comment.id,
-              'content', comment.content
-            )
-          )
-        ) FILTER (WHERE notifications.id IS NOT NULL),
-        '[]'
-      ) AS notifications
-    FROM users
-    LEFT JOIN notifications ON notifications.recipient = users.id
-    LEFT JOIN users AS actor ON notifications.actor = actor.id
-    LEFT JOIN posts AS post ON notifications.post = post.id
-    LEFT JOIN comments AS comment ON notifications.comment = comment.id
-    WHERE users.id = $1
-    GROUP BY users.id;
-  `;
-
-    const result = await this.dataSource.query(query, [id]);
-
-    if (!result.length) {
-      throw new Error(`User not found`);
+    if (!userWithNotificationCount) {
+      return null;
     }
 
-    return plainToInstance(User, result[0], { excludeExtraneousValues: true });
+    return plainToInstance(User, userWithNotificationCount, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async findOneByIdQuery(id: string): Promise<any> {
-    //Mongo
-    // console.log('ID:', id);
-    // const existingUser = await this.db.collection('users').findOne(
-    //   {
-    //     _id: new mongoose.Types.ObjectId(id),
-    //   },
-    //   { projection: { password: 0 } },
-    // );
-    // console.log(existingUser);
-
-    //Postgres
-    const query = `
-      SELECT * FROM "users"
-      WHERE id = $1
-      LIMIT 1
-    `;
-
-    const result = await this.dataSource.query(query, [id]);
-
-    return result[0]
-      ? plainToInstance(User, result[0], { excludeExtraneousValues: true })
-      : undefined;
+  async findOneByIdQuery(id: string): Promise<UserResDto> {
+    const result =
+      await this.userRepository.findOneByIdWithNotificationsCountQuery(id);
+    if (!result) {
+      throw new NotFoundException(`User not found`);
+    }
+    const { password, ...user } = result;
+    return user;
   }
 
-  async findOneQuery(identifier: string): Promise<IUser> {
-    //Mongo
-    // const existingUser = await this.db.collection('users').findOne(
-    //   {
-    //     $or: [{ email: identifier }, { username: identifier }],
-    //   },
-    //   { projection: { password: 0 } },
-    // );
-    // console.log(existingUser);
-    //Postgres
-    const query = `
-      SELECT * FROM "users"
-      WHERE username = $1 OR email = $1
-      LIMIT 1
-    `;
-
-    const result = await this.dataSource.query(query, [identifier]);
-
-    return result[0]
-      ? plainToInstance(User, result[0], { excludeExtraneousValues: true })
-      : undefined;
+  public async updateUserProfile(
+    userId: string,
+    updateDto: UserUpdateReqDto,
+  ): Promise<UserResDto> {
+    await this.userRepository.checkIfExistsById(userId);
+    const user = await this.userRepository.updateUser(userId, updateDto);
+    return plainToInstance(User, user, { excludeExtraneousValues: true });
   }
 
-  public async updateUserProfile(userData: string, dto: IUser): Promise<User> {
-    //MONGO
-    // const result = await this.userModel.updateOne(
-    //   { _id: new mongoose.Types.ObjectId(userData) },
-    //   dto,
-    // );
-    // console.log(result);
+  public async removeUserProfile(userId: string): Promise<void> {
+    await this.userRepository.checkIfExistsById(userId);
 
-    //Postgres
-    const user = await this.userRepository.findOneBy({ id: userData });
-    this.userRepository.merge(user, dto);
-    return await this.userRepository.save(user);
-  }
-
-  public async removeUserProfile(userData: string): Promise<void> {
-    //MONGO
-    // await this.userModel.deleteOne({
-    //   _id: new mongoose.Types.ObjectId(userData),
-    // });
-    //Postgres
-    await this.userRepository.delete({ id: userData });
+    await this.userRepository.deleteUser(userId);
   }
 }

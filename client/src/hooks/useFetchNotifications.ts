@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+
 import { INotification } from '../interfaces/notification.interface';
 import { QUERY_KEYS } from '../constants/app-keys';
 import { userService } from '../services/user.servise';
@@ -21,7 +22,7 @@ export const useFetchNotifications = (initialQuery: NotificationsListQuery) => {
     queryFn: ({ pageParam = 0 }) =>
       userService.getNotifications({
         params: {
-          limit: initialQuery.limit || 10,
+          limit: initialQuery.limit || 5,
           offset: pageParam as number,
         },
       }),

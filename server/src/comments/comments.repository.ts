@@ -146,20 +146,4 @@ ORDER BY ch."createdAt" ASC;
 
     return topLevelComments;
   }
-
-  async findCommentsByPost(postId: number): Promise<Comment[]> {
-    return this.find({
-      where: { post: { id: postId }, parentComment: null },
-      relations: ['author', 'replies', 'replies.author'],
-      order: { createdAt: 'ASC' },
-    });
-  }
-
-  async findReplies(commentId: number): Promise<Comment[]> {
-    return this.find({
-      where: { parentComment: { id: commentId } },
-      relations: ['author', 'replies'],
-      order: { createdAt: 'ASC' },
-    });
-  }
 }

@@ -16,7 +16,7 @@ export const myDataSource = new DataSource({
   username: databaseConfig.user,
   password: databaseConfig.password,
   database: databaseConfig.dbName,
-  entities: [path.join(process.cwd(), 'models', 'entities', '*.entity.ts')],
-  migrations: [path.join(process.cwd(), 'src', 'migrations', '*.ts')],
+  entities: [path.join(__dirname, '**', '**', '*.entity.{ts,js}')],
+  migrations: [path.join(__dirname, 'src', 'migrations', '*.{ts,js}')],
   synchronize: false,
 });
