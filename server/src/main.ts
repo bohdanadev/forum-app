@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 
 import { AppModule } from './app.module';
-import { AppConfig } from 'config/config.type';
+import { AppConfig } from '../config/config.type';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,7 +21,6 @@ async function bootstrap() {
     origin: appConfig.originUrl,
     methods: '*',
     allowedHeaders: '*',
-    credentials: true,
   });
   const port = appConfig.nestPort;
   const host = appConfig.host;
