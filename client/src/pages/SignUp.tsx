@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import ReusableForm from '../components/ReusableForm/ReusableForm';
 import { authService } from '../services/auth.service';
 import { ISignUp } from '../interfaces/auth.interface';
+import { ROUTER_KEYS } from '../constants/app-keys';
 
 const SignUp: FC = () => {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ const SignUp: FC = () => {
   const onSubmit: SubmitHandler<ISignUp> = async (data) => {
     await authService.signUp(data);
     toast.success('Signed up successfully! Try to sign in.');
-    navigate('/signin');
+    navigate(`/${ROUTER_KEYS.SIGNIN}`);
   };
 
   return (

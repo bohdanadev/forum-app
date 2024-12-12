@@ -57,9 +57,12 @@ const ReusableForm: FC<ReusableFormProps> = ({ title, fields, onSubmit }) => {
               style={{
                 width: '100px',
                 height: '100px',
-                borderRadius: '50%',
+                border: 'none',
                 objectFit: 'cover',
-                border: '2px solid #ccc',
+                fontSize: '12px',
+                color: '#F29F58',
+                textAlign: 'center',
+                margin: '8px 0 0 20px',
               }}
             />
           )}
