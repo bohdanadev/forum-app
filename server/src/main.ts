@@ -18,28 +18,30 @@ async function bootstrap() {
   const appConfig = configService.get<AppConfig>('app');
 
   app.enableCors({
-    origin: '*',
+    origin: appConfig.originUrl,
     methods: '*',
     allowedHeaders: '*',
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 200,
   });
-  // app.use((req, res, next) => {
-  //   if (req.method === 'OPTIONS') {
-  //     res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);
-  //     res.setHeader(
-  //       'Access-Control-Allow-Methods',
-  //       'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  //     );
-  //     res.setHeader(
-  //       'Access-Control-Allow-Headers',
-  //       'Content-Type, Authorization',
-  //     );
-  //     res.setHeader('Access-Control-Allow-Credentials', 'true');
-  //     res.status(204).end();
-  //   } else {
-  //     next();
-  //   }
-  // });
+  app.use((req, res, next) => {
+    if (req.method === 'OPTIONS') {
+      res.setHeader('Access-Control-Allow-Origin', appConfig.originUrl);
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+      );
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization',
+      );
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.status(204).end();
+    } else {
+      next();
+    }
+  });
 
   // app.use((req, res, next) => {
   //   res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGINS);

@@ -9,6 +9,7 @@ export type AppConfig = {
   expressPort: number;
   host: string;
   appUrl: string;
+  originUrl: string;
 };
 export type MongoConfig = {
   mongoUrl: string;

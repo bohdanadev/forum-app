@@ -6,6 +6,7 @@ export default (): Config => ({
     expressPort: Number(process.env.APP_PORT_EXPRESS),
     host: process.env.APP_HOST,
     appUrl: process.env.APP_URL,
+    originUrl: process.env.CORS_ORIGINS,
   },
   mongo: {
     mongoUrl: process.env.MONGO_URL,
