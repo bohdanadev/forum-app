@@ -1,20 +1,61 @@
-import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
-export const Sidebar = styled.div`
-  width: 200px;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-`;
+import { authService } from '../../services/auth.service';
+import { ROUTER_KEYS } from '../../constants/app-keys';
+import {
+  Notification,
+  NotificationsContainer,
+  SidebarContainer,
+  SidebarItem,
+} from './sidebar.styled';
+import useFetchUser from '../../hooks/useFetchUser';
+import { IUser } from '../../interfaces/user.interface';
 
-export const SidebarItem = styled.div`
-  padding: 8px 0;
-  font-weight: bold;
-  color: #555;
-  cursor: pointer;
+const Sidebar = () => {
+  const navigate = useNavigate();
+  // const [_, setSearchParams] = useSearchParams();
 
-  &:hover {
-    color: #333;
-  }
-`;
+  const currentUser: IUser = authService.isAuthenticated();
+  const { data: user } = useFetchUser(currentUser?.id);
+
+  const unreadNotificationsCount = user?.notifications?.filter(
+    (n) => !n.isRead
+  ).length;
+
+  const goToProfile = () => {
+    navigate(`${ROUTER_KEYS.USERS}/${currentUser.id}`);
+  };
+
+  const setAuthorIdQuery = (authorId: string | null) => {
+    navigate(`${ROUTER_KEYS.POSTS}?${ROUTER_KEYS.AUTHOR_ID}=${authorId}`);
+    // setSearchParams((params) => {
+    //   params.set('authorId', authorId!);
+    //   return params;
+    // });
+  };
+
+  const logout = async () => {
+    authService.signOut();
+    navigate(`/${ROUTER_KEYS.SIGNIN}`);
+  };
+  return (
+    <SidebarContainer>
+      <NotificationsContainer
+        onClick={() => navigate(ROUTER_KEYS.NOTIFICATIONS)}
+      >
+        <SidebarItem>Notifications</SidebarItem>
+        <Notification>{unreadNotificationsCount || ''}</Notification>
+      </NotificationsContainer>
+
+      <SidebarItem onClick={goToProfile}>Profile</SidebarItem>
+
+      <SidebarItem onClick={() => setAuthorIdQuery(currentUser?.id)}>
+        My posts
+      </SidebarItem>
+      <SidebarItem>Settings</SidebarItem>
+      <SidebarItem onClick={logout}>Logout</SidebarItem>
+    </SidebarContainer>
+  );
+};
+
+export default Sidebar;

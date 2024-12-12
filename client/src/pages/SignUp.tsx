@@ -1,15 +1,19 @@
 import { FC } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { SubmitHandler } from 'react-hook-form';
+import { toast } from 'react-toastify';
 
 import ReusableForm from '../components/ReusableForm/ReusableForm';
+import { authService } from '../services/auth.service';
+import { ISignUp } from '../interfaces/auth.interface';
 
 const SignUp: FC = () => {
   const navigate = useNavigate();
 
-  const onSubmit = (data: { [key: string]: string }) => {
-    // Handle sign-up logic here
-    console.log('Sign-Up Data:', data);
-    navigate('/signin'); // Redirect after successful sign-up
+  const onSubmit: SubmitHandler<ISignUp> = async (data) => {
+    await authService.signUp(data);
+    toast.success('Signed up successfully! Try to sign in.');
+    navigate('/signin');
   };
 
   return (
@@ -19,6 +23,7 @@ const SignUp: FC = () => {
         fields={[
           { name: 'username', label: 'Username', type: 'text' },
           { name: 'email', label: 'Email', type: 'email' },
+          { name: 'avatarUrl', label: 'Avatar', type: 'url' },
           { name: 'password', label: 'Password', type: 'password' },
           {
             name: 'confirmPassword',

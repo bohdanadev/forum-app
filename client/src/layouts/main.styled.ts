@@ -10,7 +10,7 @@ import styled from 'styled-components';
 export const MainContainer = styled.div`
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 2rem 0;
   display: flex;
   flex-direction: column;
   gap: 20px;
