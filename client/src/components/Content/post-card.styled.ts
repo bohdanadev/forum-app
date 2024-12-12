@@ -33,7 +33,7 @@ export const PostContent = styled.div`
   }
 
   img {
-    width: 50%;
+    width: 40%;
     height: 200px;
   }
 `;
