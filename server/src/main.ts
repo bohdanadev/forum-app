@@ -7,6 +7,12 @@ import { AppConfig } from '../config/config.type';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
+  const appConfig = configService.get<AppConfig>('app');
+  app.enableCors({
+    origin: appConfig.originUrl,
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -14,14 +20,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
-  const configService = app.get(ConfigService);
-  const appConfig = configService.get<AppConfig>('app');
 
-  app.enableCors({
-    origin: appConfig.originUrl,
-    methods: '*',
-    allowedHeaders: '*',
-  });
   const port = appConfig.nestPort;
   const host = appConfig.host;
   await app.listen(port, () => {
