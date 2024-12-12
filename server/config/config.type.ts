@@ -5,7 +5,7 @@ export type Config = {
   jwt: JwtConfig;
 };
 export type AppConfig = {
-  nestPort: number;
+  port: number;
   expressPort: number;
   host: string;
   appUrl: string;
